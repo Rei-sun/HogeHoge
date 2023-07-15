@@ -45,6 +45,9 @@ void SerialCommunication::CommunicationProcess() {
                     if (readed > 0) {
                         // recieve
                         printf("readed %ld, %s\n", readed, read_buffer);
+                        if (on_receive != nullptr) {
+                            on_receive(read_buffer, readed);
+                        }
                     } else if (readed == 0) {
                         // disconnect
                         CloseSerialPort(true);
@@ -145,9 +148,11 @@ void SerialCommunication::CloseSerialPort(bool error = false) {
 SerialCommunication::SerialCommunication():
     device_name(""),
     fd(-1),
-    on_connect([](){}),
-    on_disconnect([](){}),
-    on_disconnected([](){}),
+    on_connect(nullptr),
+    on_disconnect(nullptr),
+    on_receive(nullptr),
+    on_disconnected(nullptr),
+    on_reconnected(nullptr),
     thread(nullptr),
     thread_continue(false),
     is_connected(false),
@@ -167,17 +172,19 @@ SerialCommunication::~SerialCommunication(){
     }
 }
 
-bool SerialCommunication::Open(const char *device_name) {
+bool SerialCommunication::Open(const char *device_name, bool thread_start = false) {
     if (is_connected) return true;
-    if (OpenSerialPort(device_name)) {
+
+    bool ret = OpenSerialPort(device_name); 
+    if (ret || thread_start) {
         StartCommunicationThread();
-        return true;
+        return ret;
     }
     return false;
 }
 
-bool SerialCommunication::Open(std::string device_name) {
-    return Open(device_name.c_str());
+bool SerialCommunication::Open(std::string device_name, bool thread_start) {
+    return Open(device_name.c_str(), thread_start);
 }
 
 void SerialCommunication::Close() {
@@ -218,6 +225,10 @@ void SerialCommunication::RegisterCallbackOnConnect(std::function<void(void)> ca
 
 void SerialCommunication::RegisterCallbackOnDisconnect(std::function<void(void)> callback) {
     on_disconnect = callback;
+}
+
+void SerialCommunication::RegisterCallbackOnReceive(std::function<void(void*, size_t)> callback) {
+    on_receive = callback;
 }
 
 void SerialCommunication::RegisterCallbackOnDisconnected(std::function<void(void)> callback) {

@@ -25,6 +25,9 @@ class SerialCommunication {
     // 切断時コールバック
     std::function<void(void)> on_disconnect;
 
+    // 受信コールバック
+    std::function<void(void*, size_t)> on_receive;
+
     // 接続切れ時コールバック
     std::function<void(void)> on_disconnected;
 
@@ -104,14 +107,14 @@ public:
      * @param device_name 通信するデバイス名
      * @return 成功/失敗
     */
-    bool Open(const char *device_name);
+    bool Open(const char *device_name, bool thread_start);
 
     /**
      * @brief 通信を開始する関数
      * @param device_name 通信するデバイス名
      * @return 成功/失敗
     */
-    bool Open(std::string device_name);
+    bool Open(std::string device_name, bool thread_start);
 
     /**
      * @brief 通信を終了する関数
@@ -150,6 +153,12 @@ public:
      * @param callback コールバック
     */
     void RegisterCallbackOnDisconnect(std::function<void(void)> callback);
+
+    /**
+     * @brief OnReceive用コールバック登録関数
+     * @param callback コールバック
+    */
+    void RegisterCallbackOnReceive(std::function<void(void*, size_t)> callback);
 
     /**
      * @brief OnDisconnected用コールバック登録関数
