@@ -1,0 +1,15 @@
+@startuml CommunicationFlow
+
+User -> SerialCommunication: インスタンス生成
+activate SerialCommunication
+User -> SerialCommunication: Open
+    SerialCommunication -> thread: thread start
+    activate thread
+User -> SerialCommunication: Transmit
+User -> SerialCommunication: Close
+    SerialCommunication -> thread: thread stop
+    deactivate thread
+User <-- SerialCommunication: OK
+User -> SerialCommunication: インスタンス破棄
+deactivate SerialCommunication
+@enduml
