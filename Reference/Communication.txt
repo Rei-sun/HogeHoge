@@ -1,0 +1,34 @@
+モジュール: 各モジュールのこと（EncoderModule）
+センサ: モジュールに接続するセンサ（例: エンコーダ）
+アクチュエータ: モジュールに接続するアクチュエータ（例: モータ）
+
+Command: コマンド
+ModuleID: モジュールのID
+ModuleNum: モジュールの数値、複数同じモジュールの識別に使用する。
+DeviceID: センサーやアクチュエータのID
+Length: データの長さ
+
+<ModuleID> <Command> <ModuleNum> <DeviceID> とすることで、Module の Device を操作できるようにする。
+<ModuleID> <Command> を組み合わせることで一つの操作になる。
+データの長さを可変にできるように Length を指定する。
+
++------------+------------+------------+------------+------------+------------
+|  1byte     |  2byte     |  3byte     |  3byte     |  4byte     |  n bytes   
++------------+------------+------------+------------+------------+------------
+|  ModuleID  |  Command   |  ModuleNum |  DeviceID  |  Length    |  data    
++------------+------------+------------+------------+------------+------------
+
+ModuleID&Command 定義
+000: （未定義）
+001: EncoderModule
+    000: Get localization (x y yaw)
+    001: Get encoder pulse (position)
+    002: Get encoder pulse (speed)
+002: SensorModule
+    000: Get all digital sensor (hi/low)
+    001: Get analog senor
+003: MotorControlModule
+    000: Set Duty
+004: SolenoidModule
+    000: Set ON/OFF
+
