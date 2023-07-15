@@ -15,19 +15,19 @@ class HogeHogeSerial {
 }
 note right: 実際に通信で流すデータを決定するクラス
 
-class MotorControlBoard {
+class MotorControlModule {
 
 }
 
-class EncoderBoard {
+class EncoderModule {
 
 }
 
-class SolenoidBoard {
+class SolenoidModule {
 
 }
 
-class SensorBoard {
+class SensorModule {
 
 }
 
@@ -38,12 +38,12 @@ note right: ユーザーが利用するクラス。すべて、ここから参�
 
 SerialCommunication <|-- HogeHogeSerial
 HogeHogeSerial <.. BaseModule
-BaseModule <|-- MotorControlBoard
-BaseModule <|-- EncoderBoard
-BaseModule <|-- SolenoidBoard
-BaseModule <|-- SensorBoard
-MotorControlBoard "0..*" --* HogeHogeSystem
-EncoderBoard "0..*" --* HogeHogeSystem
-SolenoidBoard "0..*" --* HogeHogeSystem
-SensorBoard "0..*" --* HogeHogeSystem
+BaseModule <|-- MotorControlModule
+BaseModule <|-- EncoderModule
+BaseModule <|-- SolenoidModule
+BaseModule <|-- SensorModule
+MotorControlModule "0..*" --* HogeHogeSystem
+EncoderModule "0..*" --* HogeHogeSystem
+SolenoidModule "0..*" --* HogeHogeSystem
+SensorModule "0..*" --* HogeHogeSystem
 @enduml
