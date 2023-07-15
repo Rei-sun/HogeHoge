@@ -44,7 +44,6 @@ void SerialCommunication::CommunicationProcess() {
                     auto readed = read(fd, read_buffer, read_buffer_size);
                     if (readed > 0) {
                         // recieve
-                        printf("readed %ld, %s\n", readed, read_buffer);
                         if (on_receive != nullptr) {
                             on_receive(read_buffer, readed);
                         }
