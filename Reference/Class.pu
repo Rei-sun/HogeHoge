@@ -1,0 +1,49 @@
+@startuml クラス図
+
+class BaseModule {
+
+}
+note right: HogeHogeSerialとの関係が少し怪しめ。\nモジュールのふるまいを決定するクラス。
+
+
+class SerialCommunication {
+
+}
+
+class HogeHogeSerial {
+    
+}
+note right: 実際に通信で流すデータを決定するクラス
+
+class MotorControlBoard {
+
+}
+
+class EncoderBoard {
+
+}
+
+class SolenoidBoard {
+
+}
+
+class SensorBoard {
+
+}
+
+class HogeHogeSystem {
+
+}
+note right: ユーザーが利用するクラス。すべて、ここから参照する
+
+SerialCommunication <|-- HogeHogeSerial
+HogeHogeSerial <.. BaseModule
+BaseModule <|-- MotorControlBoard
+BaseModule <|-- EncoderBoard
+BaseModule <|-- SolenoidBoard
+BaseModule <|-- SensorBoard
+MotorControlBoard "0..*" --* HogeHogeSystem
+EncoderBoard "0..*" --* HogeHogeSystem
+SolenoidBoard "0..*" --* HogeHogeSystem
+SensorBoard "0..*" --* HogeHogeSystem
+@enduml
