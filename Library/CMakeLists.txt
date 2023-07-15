@@ -1,7 +1,7 @@
 project(HogeHogeSystem)
 
 add_library( ${PROJECT_NAME} SHARED
-    SerialCommunication/SerialCommunication
+    SerialCommunication/SerialCommunication.cpp
 )
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
