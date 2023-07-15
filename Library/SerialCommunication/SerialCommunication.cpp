@@ -63,7 +63,9 @@ void SerialCommunication::CommunicationProcess() {
                 std::quick_exit(EXIT_FAILURE);
             } else {
                 // Timeout
-                //printf("timeout\n");
+                if (on_timeout != nullptr) {
+                    on_timeout();
+                }
             }
         } else {
             // 再接続処理
@@ -152,6 +154,7 @@ SerialCommunication::SerialCommunication():
     on_receive(nullptr),
     on_disconnected(nullptr),
     on_reconnected(nullptr),
+    on_timeout(nullptr),
     thread(nullptr),
     thread_continue(false),
     is_connected(false),
@@ -236,4 +239,8 @@ void SerialCommunication::RegisterCallbackOnDisconnected(std::function<void(void
 
 void SerialCommunication::RegisterCallbackOnReconnected(std::function<void(void)> callback) {
     on_reconnected = callback;
+}
+
+void SerialCommunication::RegisterCallbackOnTimeout(std::function<void(void)> callback) {
+    on_timeout = callback;
 }

@@ -32,6 +32,7 @@ int main(){
     serial.RegisterCallbackOnReceive([](void* data, size_t size){ printf("Recv %ld byte, %s\n", size, (char *)data); });
     serial.RegisterCallbackOnDisconnected([](){ printf("接続が切れましたが？\n"); });
     serial.RegisterCallbackOnReconnected([](){ printf("いぇーい、再接続されましたぁぁぁ!\n"); });
+    serial.RegisterCallbackOnTimeout([](){ printf("タイムアウトしたって\n"); });
 
     if (!serial.Open(target, false)) {
         std::cout << "Cannot connect " << target << std::endl;

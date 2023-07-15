@@ -34,6 +34,9 @@ class SerialCommunication {
     // 再接続時コールバック
     std::function<void(void)> on_reconnected;
 
+    // 再接続時コールバック
+    std::function<void(void)> on_timeout;
+
     // 通信用スレッド
     std::shared_ptr<std::thread> thread;
 
@@ -171,4 +174,10 @@ public:
      * @param callback コールバック
     */
     void RegisterCallbackOnReconnected(std::function<void(void)> callback);
+
+    /**
+     * @brief OnTimeout用コールバック登録関数
+     * @param callback コールバック
+    */
+    void RegisterCallbackOnTimeout(std::function<void(void)> callback);
 };
