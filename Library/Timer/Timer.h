@@ -59,13 +59,11 @@ namespace HogeHoge {
         */
         void Sleep() {
             int elapsed = 0.f;
-            end = std::chrono::system_clock::now();
-            elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
-            while(elapsed < time_period - over_time) {
+            do {
                 end = std::chrono::system_clock::now();
                 elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
                 delta_time = elapsed * 0.000001f;
-            }
+            } while (elapsed < time_period - over_time);
             over_time = elapsed - (time_period - over_time);
             start = end;
         }
