@@ -20,15 +20,15 @@ Length: データの長さ
 
 ModuleID&Command 定義
 000: （未定義）
-001: EncoderModule
+001: MotorControlModule
+    000: Set Duty
+002: EncoderModule
     000: Get localization (x y yaw)
     001: Get encoder pulse (position)
     002: Get encoder pulse (speed)
-002: SensorModule
+003: SensorModule
     000: Get all digital sensor (hi/low)
     001: Get analog senor
-003: MotorControlModule
-    000: Set Duty
 004: SolenoidModule
     000: Set ON/OFF
 

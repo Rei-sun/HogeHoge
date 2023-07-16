@@ -1,5 +1,21 @@
 #pragma once
 
+// 使い方とか？
+// HogeHoge::SerialCommunication serial;
+// serial.RegisterCallbackOnConnect([](){ printf("いぇーい、接続できたよぉぉぉ！\n"); });
+// serial.RegisterCallbackOnDisconnect([](){ printf("いぇーい、切断したよぉぉぉ！\n"); });
+// serial.RegisterCallbackOnReceive([](void* data, size_t size){ printf("Recv %ld byte, %s\n", size, (char *)data); });
+// serial.RegisterCallbackOnDisconnected([](){ printf("接続が切れましたが？\n"); });
+// serial.RegisterCallbackOnReconnected([](){ printf("いぇーい、再接続されましたぁぁぁ!\n"); });
+// serial.RegisterCallbackOnTimeout([](){ printf("タイムアウトしたって\n"); });
+
+// // 通信を開始する
+// std::string target = "/dev/ESP32-WROOM-32E";
+// if (!serial.Open(target, false)) {
+//     std::cout << "Cannot connect " << target << std::endl;
+//     std::quick_exit(0);
+// }
+
 #include <string>
 #include <unistd.h>
 #include <fcntl.h>
