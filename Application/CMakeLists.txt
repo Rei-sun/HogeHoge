@@ -3,9 +3,9 @@ add_executable( ${PROJECT_NAME}
 )
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
-    ${LIB_DIR}/SerialCommunication/
+    ${LIB_DIR}
 )
 
 target_link_libraries( ${PROJECT_NAME}
-    HogeHogeSystem
+    HogeHoge
 )

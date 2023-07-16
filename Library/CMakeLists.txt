@@ -1,4 +1,4 @@
-project(HogeHogeSystem)
+project(HogeHoge)
 
 add_library( ${PROJECT_NAME} SHARED
     SerialCommunication/SerialCommunication.cpp
@@ -6,4 +6,5 @@ add_library( ${PROJECT_NAME} SHARED
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
     ${LIB_DIR}/SerialCommunication/
+    ${LIB_DIR}/Timer/
 )
