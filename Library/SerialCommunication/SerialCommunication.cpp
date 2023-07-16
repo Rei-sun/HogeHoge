@@ -1,5 +1,7 @@
 #include "SerialCommunication.h"
 
+using namespace HogeHoge;
+
 void SerialCommunication::StartCommunicationThread() {
     if (thread_continue) {
         printf("already thread running.\n");

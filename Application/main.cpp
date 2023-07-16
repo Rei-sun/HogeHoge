@@ -1,5 +1,6 @@
+#include <HogeHoge.h>
+
 #include <iostream>
-#include <SerialCommunication.h>
 #include <string>
 #include <signal.h>
 
@@ -25,8 +26,7 @@ int main(){
     register_abort();
     register_exit();
 
-    std::string target = "/dev/ESP32-WROOM-32E";
-    SerialCommunication serial;
+    HogeHoge::SerialCommunication serial;
     serial.RegisterCallbackOnConnect([](){ printf("いぇーい、接続できたよぉぉぉ！\n"); });
     serial.RegisterCallbackOnDisconnect([](){ printf("いぇーい、切断したよぉぉぉ！\n"); });
     serial.RegisterCallbackOnReceive([](void* data, size_t size){ printf("Recv %ld byte, %s\n", size, (char *)data); });
@@ -34,16 +34,22 @@ int main(){
     serial.RegisterCallbackOnReconnected([](){ printf("いぇーい、再接続されましたぁぁぁ!\n"); });
     serial.RegisterCallbackOnTimeout([](){ printf("タイムアウトしたって\n"); });
 
+    // 通信を開始する
+    std::string target = "/dev/ESP32-WROOM-32E";
     if (!serial.Open(target, false)) {
         std::cout << "Cannot connect " << target << std::endl;
         std::quick_exit(0);
     }
 
-    for(int i;;i++) {
+    HogeHoge::Timer timer;
+    timer.SetHz(10);
+
+    for(int i = 0;;i++) {
         char buffer[32];
-        sprintf(buffer, "[%03d] 12345678901234567890", i);
+        sprintf(buffer, "[%03d] 12345678901234567890GGGG", i);
         serial.Transmit(buffer);
-        sleep(1);
+        printf("delta time = %f\n", timer.GetDeltaTime());
+        timer.Sleep();
     }
 
     return 0;
