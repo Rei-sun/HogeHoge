@@ -102,13 +102,18 @@ bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect
     cfsetispeed(&config_tio, BAUDRATE);
     cfsetospeed(&config_tio, BAUDRATE);
 
+    config_tio.c_iflag = 0;
+    config_tio.c_oflag = 0;
+    config_tio.c_lflag = 0;
     //non canonical, non echo back
-    config_tio.c_lflag &= ~(ECHO | ICANON);
+    //config_tio.c_lflag &= ~(ECHO | ICANON);
     
     //non blocking
     config_tio.c_cc[VMIN] = 0;
     config_tio.c_cc[VTIME] = 0;
     
+    tcflush(fd, TCIOFLUSH);
+
     //store configuration
     tcsetattr(fd, TCSANOW, &config_tio);
 
