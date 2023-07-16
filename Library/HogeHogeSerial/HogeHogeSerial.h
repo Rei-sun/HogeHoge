@@ -8,7 +8,7 @@
 #include <sstream>
 
 namespace HogeHoge {
-    enum class Module {
+    enum class ModuleID {
         UndefinedModule,
         MotorControlModule,
         EncoderModule,

@@ -12,7 +12,7 @@ int main(){
 
     while (Hoge::Good()) {
         uint8_t data[] = { 3 };
-        hoge.serial.Send(1, 2, 3, 4, 1, data);
+        hoge.motor_control_module_1.Command(0, 1, 1, data);
         printf("delta time = %f\n", timer.GetDeltaTime());
         timer.Sleep();
     }

@@ -4,6 +4,7 @@
 #include <Timer.h>
 #include <SerialCommunication.h>
 #include <HogeHogeSerial.h>
+#include <MotorControlModule.h>
 
 #include <signal.h>
 
@@ -29,11 +30,16 @@ namespace HogeHoge {
     public:
         // 通信用インスタンス
         HogeHogeSerial serial;
+        // MotorControlModule
+        MotorControlModule motor_control_module_1;
         
         /**
          * @brief コンストラクタ
         */
-        Hoge() :serial("/dev/ESP32-WROOM-32E") {
+        Hoge() :
+            serial("/dev/ESP32-WROOM-32E"),
+            motor_control_module_1(serial, 1)
+        {
             RegisterAbort();
         }
 
