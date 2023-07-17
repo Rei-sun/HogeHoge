@@ -176,6 +176,8 @@ SerialCommunication::SerialCommunication():
 SerialCommunication::~SerialCommunication(){
     if (is_connected) {
         Close();
+    } else {
+        StopCommunicationThread();
     }
 }
 
