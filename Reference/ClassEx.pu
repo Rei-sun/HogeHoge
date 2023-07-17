@@ -1,0 +1,113 @@
+@startuml クラス図
+
+class BaseModule {
+
+}
+
+class SerialCommunication {
+
+}
+
+class HogeHogeSerial {
+    
+}
+
+' モータ系
+class MotorControlModule {
+
+}
+
+class Motor {
+
+}
+
+class ServoMotor {
+
+}
+
+' エンコーダ系
+class EncoderModule {
+
+}
+
+class Encoder {
+
+}
+
+class IncrimentalEncoder {
+
+}
+
+class AbsoluteEncoder {
+
+}
+
+' ソレノイド系
+class SolenoidModule {
+
+}
+
+class Solenoid {
+
+}
+
+class AirValve {
+
+}
+
+' デジタルセンサ / アナログセンサ系
+class SensorModule {
+
+}
+
+class DigitalSensor {
+
+}
+
+class Button {
+
+}
+
+class AnalogSensor {
+
+}
+
+class Potentiometer {
+
+}
+
+class HogeHogeSystem {
+
+}
+
+SerialCommunication <|-- HogeHogeSerial
+HogeHogeSerial <.. BaseModule
+
+BaseModule <|-- MotorControlModule
+MotorControlModule *-- Motor
+Motor <|-- ServoMotor
+
+BaseModule <|-- EncoderModule
+EncoderModule *-- Encoder
+Encoder <|-- IncrimentalEncoder
+Encoder <|-- AbsoluteEncoder
+
+BaseModule <|-- SolenoidModule
+SolenoidModule *-- Solenoid
+Solenoid <|-- AirValve
+
+BaseModule <|-- SensorModule
+SensorModule *-- DigitalSensor
+SensorModule *-- AnalogSensor
+DigitalSensor <|-- Button
+AnalogSensor <|-- Potentiometer
+
+MotorControlModule "0..*" --* HogeHogeSystem
+EncoderModule "0..*" --* HogeHogeSystem
+SolenoidModule "0..*" --* HogeHogeSystem
+SensorModule "0..*" --* HogeHogeSystem
+
+
+
+
+@enduml
