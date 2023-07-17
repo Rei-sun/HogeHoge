@@ -16,5 +16,6 @@ namespace HogeHoge {
         BaseModule() = delete;
 
         virtual bool Command(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) = 0;
+        virtual void Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {}
     };
 }
