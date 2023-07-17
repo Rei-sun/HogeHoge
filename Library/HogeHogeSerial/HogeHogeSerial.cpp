@@ -43,7 +43,7 @@ void HogeHogeSerial::Send(uint8_t module_id, uint8_t commad, uint8_t module_num,
     // Add checksum
     uint8_t checksum = 0;
     for (int i = 0; i < tx_size - 1; i++) {
-        printf("%x:", tx_data[i]);
+        // printf("%x:", tx_data[i]);
         checksum += tx_data[i];
     }
     tx_data[tx_size - 1] = checksum;
