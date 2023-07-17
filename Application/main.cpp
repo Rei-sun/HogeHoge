@@ -11,8 +11,8 @@ int main(){
     timer.SetHz(1);
 
     while (Hoge::Good()) {
-        uint8_t data[] = { 3 };
-        hoge.motor_control_module_1.Command(0, 1, 1, data);
+        uint8_t test_data[] = { 3, 6, 9, 12 };
+        Hoge::motor_control_module_1.Command(1, 1, 4, test_data);
         printf("delta time = %f\n", timer.GetDeltaTime());
         timer.Sleep();
     }
