@@ -7,28 +7,28 @@
 */
 namespace HogeHoge {
     /**
-     * @brief 時間を制御するクラス
+     * @brief Timer for loop
     */
     class Timer {
         
-        // 周期 [us]
+        // Timer period [us]
         int time_period;
 
-        // 測定開始時間
+        // start measurement time point
         std::chrono::system_clock::time_point start;
         
-        // 測定終了時間
+        // end measurement time point
         std::chrono::system_clock::time_point end;
 
-        // オーバータイム
+        // over time
         int over_time;
 
-        // 前回のループからの経過時間 [s]
+        // progress time for last loop [s]
         float delta_time;
 
     public:
         /**
-         * @brief コンストラクタ
+         * @brief Constructer
         */
         Timer() :
             time_period(0),
@@ -39,25 +39,25 @@ namespace HogeHoge {
         }
 
         /**
-         * @brief 前回のループからの経過時間取得関数
-         * @return 経過時間 [s]
+         * @brief Get Delta time
+         * @return Delta time [s]
         */
         float GetDeltaTime() {
             return delta_time;
         }
 
         /**
-         * @brief ループ頻度設定関数
-         * @param hz 周波数 [Hz]
+         * @brief Set loop rate functino
+         * @param hz frequency [Hz]
         */
         void SetHz(float hz) {
-            // 周期[us] = 1000000 [us] / hz [Hz]
+            // period [us] = 1000000 [us] / hz [Hz]
             time_period = 1000000.0f / hz;
             start = std::chrono::system_clock::now();
         }
 
         /**
-         * @brief スリープ関数
+         * @brief Sleep function
         */
         void Sleep() {
             int elapsed = 0.f;
