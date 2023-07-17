@@ -32,7 +32,7 @@ namespace HogeHoge {
         short in_analog_5;
         short in_analog_6;
 
-        short *value_map[6];
+        short* const value_map[6];
 
         /// @brief command transmit function
         /// @param cmd command

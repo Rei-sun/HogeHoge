@@ -16,7 +16,7 @@ namespace HogeHoge {
         float in_position_y;    // position axis y [mm] (module_num = 1 only)
         float in_yaw;           // yaw [rad] (module_num = 1 only)
 
-        short *value_map[4];
+        short* const value_map[4];
 
         /// @brief command transmit function
         /// @param cmd command
