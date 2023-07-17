@@ -29,7 +29,16 @@ bool SensorModule::Command(uint8_t cmd, uint8_t device_id, uint8_t length, void*
 }
 
 void SensorModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
-    
+    if (cmd == (uint8_t)CMD_SensorModule::GetSensorData) {
+        auto uint8_data = (uint8_t*)data;
+        in_swich_state.all = uint8_data[0];
+        auto short_array = (short*)(uint8_t*)data;
+        for (int i = 0; i < 6; i++) {
+            *value_map[i] = short_array[i];
+        }
+    } else {
+        printf("undefined command\n");
+    }
 }
 
 void SensorModule::SendGetSensorData() {

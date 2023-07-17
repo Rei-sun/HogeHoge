@@ -15,7 +15,7 @@ SolenoidModule::SolenoidModule(HogeHogeSerial &_serial, uint8_t _module_num):
 }
 
 void SolenoidModule::SendBatch() {
-
+    Command((uint8_t)CMD_SolenoidModule::SetAllState, 0, sizeof(uint8_t), &in_solenoid_state.all);
 }
 
 void SolenoidModule::SetState(uint8_t device_id, bool state) {

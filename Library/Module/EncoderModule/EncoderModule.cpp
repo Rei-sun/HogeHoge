@@ -27,7 +27,19 @@ bool EncoderModule::Command(uint8_t cmd, uint8_t device_id, uint8_t length, void
 }
 
 void EncoderModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
-    
+    if (cmd == (uint8_t)CMD_EncoderModule::GetLocalization) {
+        auto pose_array = (float*)data;
+        in_position_x = pose_array[0];
+        in_position_y = pose_array[1];
+        in_yaw = pose_array[2];
+    } else if (cmd == (uint8_t)CMD_EncoderModule::GetAllPulse) {
+        auto pulse_array = (short*)data;
+        for (int i = 0; i < 4; i++) {
+            *value_map[i] = pulse_array[i];
+        }
+    } else {
+        printf("undefined command\n");
+    }
 }
 
 void EncoderModule::SendGetLocalization() {

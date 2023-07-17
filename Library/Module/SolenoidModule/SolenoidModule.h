@@ -1,6 +1,7 @@
 #pragma once
 #include <HogeHogeSerial.h>
 #include <BaseModule.h>
+#include <CommandDefinition.h>
 
 namespace HogeHoge {
     class SolenoidModule : public BaseModule {
