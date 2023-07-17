@@ -5,12 +5,13 @@
 #include <SerialCommunication.h>
 #include <HogeHogeSerial.h>
 #include <MotorControlModule.h>
+#include <EncoderModule.h>
 
 #include <signal.h>
 
 namespace HogeHoge {
     class Hoge {
-        // 状態
+        // condition
         static bool condition;
 
         /**
@@ -21,30 +22,32 @@ namespace HogeHoge {
         }
 
         /**
-         * @brief abot handler 登録関数
+         * @brief Regist Abort handler function
         */
-        void RegisterAbort() {
+        static void RegisterAbort() {
             signal(SIGINT, Hoge::abort_handler);
         }
 
     public:
-        // 通信用インスタンス
-        HogeHogeSerial serial;
-        // MotorControlModule
-        MotorControlModule motor_control_module_1;
+        // Instance for serial communication
+        static HogeHogeSerial serial;
+
+        // Motor control module
+        static MotorControlModule motor_control_module_1;
+
+        // Encoder Module
+        static EncoderModule encoder_module_1;
         
         /**
-         * @brief コンストラクタ
+         * @brief Constructer
         */
-        Hoge() :
-            serial("/dev/ESP32-WROOM-32E"),
-            motor_control_module_1(serial, 1)
+        Hoge()
         {
             RegisterAbort();
         }
 
         /**
-         * @brief 状態確認関数
+         * @brief Condition check function
         */
        static bool Good() {
         return Hoge::condition;
@@ -53,6 +56,11 @@ namespace HogeHoge {
     bool Hoge::condition = true;
 }
 
+HogeHoge::HogeHogeSerial HogeHoge::Hoge::serial("/dev/ESP32-WROOM-32E");
+HogeHoge::MotorControlModule HogeHoge::Hoge::motor_control_module_1(HogeHoge::Hoge::serial, 1);
+HogeHoge::EncoderModule HogeHoge::Hoge::encoder_module_1(HogeHoge::Hoge::serial, 1);
 
+// By including this file, instantiate hoge.
 HogeHoge::Hoge hoge;
+
 #endif
