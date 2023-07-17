@@ -23,9 +23,9 @@ void SerialCommunication::StopCommunicationThread() {
 }
 
 void SerialCommunication::CommunicationProcess() {
-    // 読み込みバッファサイズ
+    // Read buffer size
     static const size_t read_buffer_size = 1024;
-    // バッファ 
+    // Read buffer
     uint8_t *read_buffer = new uint8_t[read_buffer_size];
     
     fd_set rfds;
@@ -33,7 +33,6 @@ void SerialCommunication::CommunicationProcess() {
 
     while(thread_continue){
         if (is_connected) {
-            // 通信処理
             FD_ZERO(&rfds);
             FD_SET(fd, &rfds);
             tv.tv_sec = timeout_sec;
@@ -42,15 +41,15 @@ void SerialCommunication::CommunicationProcess() {
             if (ret > 0) {
                 // OK
                 if (FD_ISSET(fd, &rfds)){
-                    // read
+                    // Read
                     auto readed = read(fd, read_buffer, read_buffer_size);
                     if (readed > 0) {
-                        // recieve
+                        // Recieve
                         if (on_receive != nullptr) {
                             on_receive(read_buffer, readed);
                         }
                     } else if (readed == 0) {
-                        // disconnect
+                        // Disconnect
                         CloseSerialPort(true);
                     } else {
                         printf("read() error\n");
@@ -61,7 +60,7 @@ void SerialCommunication::CommunicationProcess() {
                 // Error
                 printf("error\n");
                 if (errno == EINTR) continue;
-                // その他のエラーの場合、終了する。
+                // Other error
                 std::quick_exit(EXIT_FAILURE);
             } else {
                 // Timeout
@@ -70,7 +69,7 @@ void SerialCommunication::CommunicationProcess() {
                 }
             }
         } else {
-            // 再接続処理
+            // Reconnect process
             printf("reconnect %s...\n", device_name.c_str());
             sleep(reconnect_interval);
             OpenSerialPort(device_name.c_str(), true);
@@ -93,11 +92,12 @@ bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect
 
     fcntl(fd, F_SETFL,0);
     
-    //load configuration
     struct termios config_tio;
+    
+    // Get
     tcgetattr(fd, &config_tio);
     
-    //set baudrate
+    // Configure
     speed_t BAUDRATE = B1000000;
     cfsetispeed(&config_tio, BAUDRATE);
     cfsetospeed(&config_tio, BAUDRATE);
@@ -105,16 +105,14 @@ bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect
     config_tio.c_iflag = 0;
     config_tio.c_oflag = 0;
     config_tio.c_lflag = 0;
-    //non canonical, non echo back
-    //config_tio.c_lflag &= ~(ECHO | ICANON);
     
-    //non blocking
     config_tio.c_cc[VMIN] = 0;
     config_tio.c_cc[VTIME] = 0;
     
+    // Flush
     tcflush(fd, TCIOFLUSH);
 
-    //store configuration
+    // Set
     tcsetattr(fd, TCSANOW, &config_tio);
 
     transmit_failure_count = 0;
@@ -224,7 +222,7 @@ void SerialCommunication::Transmit(const char* msg, size_t size) {
 
 void SerialCommunication::Transmit(std::string msg) {
     if (!is_connected) return;
-    // msg.size() + 1 は 文字数 + ヌル文字
+    // msg.size() + 1 is number of char + null
     Transmit(msg.c_str(), msg.size() + 1);
 }
 

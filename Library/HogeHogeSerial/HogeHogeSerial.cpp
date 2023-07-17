@@ -21,7 +21,7 @@ HogeHogeSerial::HogeHogeSerial(std::string device_name) :
     Open(target_device_name, true);
 }
 
-void HogeHogeSerial::Send(uint8_t module_id, uint8_t commnad, uint8_t module_num, uint8_t device_id, uint8_t length, void *value_data) {
+void HogeHogeSerial::Send(uint8_t module_id, uint8_t commad, uint8_t module_num, uint8_t device_id, uint8_t length, void *value_data) {
     // argument check
     
     // new tx_data (size = 5 + length + checksum)
@@ -30,7 +30,7 @@ void HogeHogeSerial::Send(uint8_t module_id, uint8_t commnad, uint8_t module_num
 
     // To constructing transmit data
     tx_data[0] = module_id;
-    tx_data[1] = commnad;
+    tx_data[1] = commad;
     tx_data[2] = module_num;
     tx_data[3] = device_id;
     tx_data[4] = length;

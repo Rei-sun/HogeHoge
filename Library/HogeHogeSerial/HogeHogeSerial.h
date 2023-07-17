@@ -8,6 +8,7 @@
 #include <sstream>
 
 namespace HogeHoge {
+    /// @brief Module ID
     enum class ModuleID {
         UndefinedModule,
         MotorControlModule,
@@ -16,7 +17,9 @@ namespace HogeHoge {
         SolenoidModule
     };
 
+    /// @brief Serial communication for HogeHoge
     class HogeHogeSerial : public SerialCommunication {
+        // Target device name
         const std::string target_device_name;
 
         // void OnConnect();
@@ -26,10 +29,21 @@ namespace HogeHoge {
         // void OnReconnected();
         // void OnTimeout();
 
+        /// @brief Constructer
         HogeHogeSerial(){};
 
     public:
+        /// @brief Constructer
+        /// @param device_name Device name (ex. /dev/ttyACM0)
         HogeHogeSerial(std::string device_name);
-        void Send(uint8_t module_id, uint8_t commnad, uint8_t module_num, uint8_t device_id, uint8_t length, void *data);
+
+        /// @brief Transmit command function
+        /// @param module_id Module ID
+        /// @param commad Commad
+        /// @param module_num Module Number
+        /// @param device_id Device ID
+        /// @param length Data length
+        /// @param data Data
+        void Send(uint8_t module_id, uint8_t commad, uint8_t module_num, uint8_t device_id, uint8_t length, void *data);
     };
 }

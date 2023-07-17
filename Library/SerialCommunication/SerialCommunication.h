@@ -1,6 +1,6 @@
 #pragma once
 
-// 使い方とか？
+// Usage？
 // HogeHoge::SerialCommunication serial;
 // serial.RegisterCallbackOnConnect([](){ printf("いぇーい、接続できたよぉぉぉ！\n"); });
 // serial.RegisterCallbackOnDisconnect([](){ printf("いぇーい、切断したよぉぉぉ！\n"); });
@@ -9,7 +9,7 @@
 // serial.RegisterCallbackOnReconnected([](){ printf("いぇーい、再接続されましたぁぁぁ!\n"); });
 // serial.RegisterCallbackOnTimeout([](){ printf("タイムアウトしたって\n"); });
 
-// // 通信を開始する
+// // Start communication
 // std::string target = "/dev/ESP32-WROOM-32E";
 // if (!serial.Open(target, false)) {
 //     std::cout << "Cannot connect " << target << std::endl;
@@ -31,175 +31,175 @@
 */
 namespace HogeHoge {
     /**
-     * @brief シリアル通信を行うクラス
-     * @details 接続中、インスタンスが破棄される時に接続を終了する
+     * @brief Class for serial communication
+     * @details During the connection, terminate the connection when the instance is destroyed
     */
     class SerialCommunication {
-        // ターゲットデバイス
+        // Target device
         std::string device_name;
         
-        // 接続したファイルディスクリプタ
+        // File discripter for communication
         int fd;
 
-        // 接続時コールバック
+        // Connect callback
         std::function<void(void)> on_connect;
 
-        // 切断時コールバック
+        // Close callback
         std::function<void(void)> on_disconnect;
 
-        // 受信コールバック
+        // Receive callback
         std::function<void(void*, size_t)> on_receive;
 
-        // 接続切れ時コールバック
+        // Disconnected callback
         std::function<void(void)> on_disconnected;
 
-        // 再接続時コールバック
+        // Reconnect callback
         std::function<void(void)> on_reconnected;
 
-        // 再接続時コールバック
+        // Timeout callback
         std::function<void(void)> on_timeout;
 
-        // 通信用スレッド
+        // thread for communication
         std::shared_ptr<std::thread> thread;
 
-        // スレッド制御用フラグ
+        // Flag for thread control
         bool thread_continue;
 
-        // 接続フラグ
+        // Flag for connected
         bool is_connected;
 
-        // 最終送信失敗カウント
+        // transmit failure counter
         uint32_t transmit_failure_count;
 
-        // タイムアウト [ms]
+        // Setting for Timeout [ms]
         uint32_t timeout;
 
-        // タイムアウト [s]
+        // timeout [s]
         time_t timeout_sec;
 
-        // タイムアウト [us]
+        // timeout [us]
         suseconds_t timeout_usec;
 
-        // 再接続インターバル [s]
+        // Reconnect interval [s]
         uint32_t reconnect_interval;
 
-        // 排他制御用
+        // For Exclusive Control
         std::mutex io_mutex;
 
     private:
         /**
-         * @brief スレッド開始関数
+         * @brief Start thread function
         */
         void StartCommunicationThread();
 
         /**
-         * @brief スレッド停止関数
+         * @brief Stop thread function
         */
         void StopCommunicationThread();
 
         /**
-         * @brief 通信用スレッド
+         * @brief Communication thread
         */
         void CommunicationProcess();
 
         /**
-         * @brief 内部用の通信を開始する関数
-         * @param device_name 通信するデバイス名
-         * @param reconnect 再接続かどうか
-         * @return 成功/失敗
+         * @brief Start thread for internal function
+         * @param device_name Target device name
+         * @param reconnect is reconnect?
+         * @return Success or Failure
         */
         bool OpenSerialPort(const char *device_name, bool reconnect);
 
         /**
-         * @brief 内部用の通信を終了する関数
-         * @param error エラーに呼び出しかどうか
+         * @brief Stop thread for internal function
+         * @param error calling by error?
         */
         void CloseSerialPort(bool error);
 
     public:
         /**
-         * @brief コンストラクタ
+         * @brief Constructer
         */
         SerialCommunication();
 
         /**
-         * @brief デストラクタ
+         * @brief Destructer
         */
         ~SerialCommunication();
 
         /**
-         * @brief 通信を開始する関数
-         * @param device_name 通信するデバイス名
-         * @return 成功/失敗
+         * @brief Start Communication function
+         * @param device_name Target device name
+         * @return Success or Failure
         */
         bool Open(const char *device_name, bool thread_start);
 
         /**
-         * @brief 通信を開始する関数
-         * @param device_name 通信するデバイス名
-         * @return 成功/失敗
+         * @brief Start Communication function
+         * @param device_name Target device name
+         * @return Success or Failure
         */
         bool Open(std::string device_name, bool thread_start);
 
         /**
-         * @brief 通信を終了する関数
+         * @brief Close communication function
         */
         void Close();
 
         /**
-         * @brief 送信関数
-         * @param data 送信するデータ
-         * @param size 送信するデータサイズ
+         * @brief Transmit function
+         * @param data Data
+         * @param size Size for transmit data
         */
         void Transmit(uint8_t *data, size_t size);
 
         /**
-         * @brief 送信関数
-         * @param msg 送信するデータ
-         * @param size 送信するデータサイズ
+         * @brief Transmit function
+         * @param msg Data
+         * @param size Size for transmit data
         */
         void Transmit(const char* msg, size_t size);
         
         /**
-         * @brief 送信関数
-         * @param data 送信するデータ
-         * @param size 送信するデータサイズ
+         * @brief Transmit functinon
+         * @param data Data
+         * @param size size for transmit data
         */
         void Transmit(std::string msg);
 
         /**
-         * @brief OnConnect用コールバック登録関数
-         * @param callback コールバック
+         * @brief Callback registration function for OnConnect
+         * @param callback Callback function
         */
         void RegisterCallbackOnConnect(std::function<void(void)> callback);
 
         /**
-         * @brief OnDisconnect用コールバック登録関数
-         * @param callback コールバック
+         * @brief Callback registration function for OnDisconnect
+         * @param callback Callback function
         */
         void RegisterCallbackOnDisconnect(std::function<void(void)> callback);
 
         /**
-         * @brief OnReceive用コールバック登録関数
-         * @param callback コールバック
+         * @brief Callback registration function for OnReceive
+         * @param callback Callback function
         */
         void RegisterCallbackOnReceive(std::function<void(void*, size_t)> callback);
 
         /**
-         * @brief OnDisconnected用コールバック登録関数
-         * @param callback コールバック
+         * @brief Callback registration function for OnDisconnected
+         * @param callback Callback function
         */
         void RegisterCallbackOnDisconnected(std::function<void(void)> callback);
 
         /**
-         * @brief OnReconnected用コールバック登録関数
-         * @param callback コールバック
+         * @brief Callback registration function for OnReconnect
+         * @param callback Callback function
         */
         void RegisterCallbackOnReconnected(std::function<void(void)> callback);
 
         /**
-         * @brief OnTimeout用コールバック登録関数
-         * @param callback コールバック
+         * @brief Callback registration function for OnTimeout
+         * @param callback Callback function
         */
         void RegisterCallbackOnTimeout(std::function<void(void)> callback);
     };
