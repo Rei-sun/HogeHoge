@@ -16,10 +16,35 @@ namespace HogeHoge {
         float in_position_y;    // position axis y [mm] (module_num = 1 only)
         float in_yaw;           // yaw [rad] (module_num = 1 only)
 
+        short *value_map[4];
+
+        /// @brief command transmit function
+        /// @param cmd command
+        /// @param device_id Device ID
+        /// @param length Data length
+        /// @param data Data
+        /// @return OK
         bool Command(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) override;
+
     public:
+        /// @brief Delete default constructer
         EncoderModule() = delete;
+
+        /// @brief Constructer
+        /// @param _serial Reference of HogeHogeSerial 
+        /// @param module_num Module numbber
         EncoderModule(HogeHogeSerial &_serial, uint8_t module_num);
+
+        /// @brief Received data processing function
+        /// @param cmd Command
+        /// @param device_id Device ID
+        /// @param length Size of received data size
+        /// @param data received data
         void Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) override;
+
+        short GetPulse(uint8_t device_id);
+        float GetPositionX();
+        float GetPositionY();
+        float GetEulerYaw();
     };
 }

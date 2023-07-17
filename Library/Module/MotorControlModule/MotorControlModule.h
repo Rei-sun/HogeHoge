@@ -1,9 +1,9 @@
 #pragma once
 #include <HogeHogeSerial.h>
 #include <BaseModule.h>
+#include <CommandDefinition.h>
 
 namespace HogeHoge {
-    
     /// @brief Motor control module class
     class MotorControlModule : public BaseModule {
         // device output
@@ -17,7 +17,15 @@ namespace HogeHoge {
         // device input
         // none
 
-    public:
+        // Duty min
+        const float limit_duty_min;
+
+        // Duty max
+        const float limit_duty_max;
+
+        // Map for out_pwm
+        float* const value_map[6];
+
         /// @brief command transmit function
         /// @param cmd command
         /// @param device_id Device ID
@@ -25,7 +33,15 @@ namespace HogeHoge {
         /// @param data Data
         /// @return OK
         bool Command(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) override;
-
+        
+        /// @brief Clamping value function
+        /// @param duty Duty
+        /// @param min min
+        /// @param max max
+        /// @return Clamped value
+        inline float DutyClamp(float duty, float min, float max);
+    public:
+    
         /// @brief Delete default constructer
         MotorControlModule() = delete;
 
@@ -33,5 +49,17 @@ namespace HogeHoge {
         /// @param _serial Reference of HogeHogeSerial 
         /// @param module_num Module numbber
         MotorControlModule(HogeHogeSerial &_serial, uint8_t module_num);
+
+        /// @brief batch sending
+        void SendBatch() override;
+
+        /// @brief Set PWM duty function
+        /// @param device_id
+        /// @param duty
+        void SetDuty(uint8_t device_id, float duty);
+
+        /// @brief Get PWM duty from cache function
+        /// @param device_id
+        float GetDuty(uint8_t device_id);
     };
 }
