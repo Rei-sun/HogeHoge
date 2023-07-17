@@ -6,6 +6,8 @@
 #include <HogeHogeSerial.h>
 #include <MotorControlModule.h>
 #include <EncoderModule.h>
+#include <SensorModule.h>
+#include <SolenoidModule.h>
 
 #include <signal.h>
 
@@ -35,9 +37,15 @@ namespace HogeHoge {
         // Motor control module
         static MotorControlModule motor_control_module_1;
 
-        // Encoder Module
+        // Encoder module
         static EncoderModule encoder_module_1;
+
+        // Sensor module
+        static SensorModule sensor_module_1;
         
+        // Solenoid module
+        static SolenoidModule solenoid_module_1;
+
         /**
          * @brief Constructer
         */
@@ -59,6 +67,8 @@ namespace HogeHoge {
 HogeHoge::HogeHogeSerial HogeHoge::Hoge::serial("/dev/ESP32-WROOM-32E");
 HogeHoge::MotorControlModule HogeHoge::Hoge::motor_control_module_1(HogeHoge::Hoge::serial, 1);
 HogeHoge::EncoderModule HogeHoge::Hoge::encoder_module_1(HogeHoge::Hoge::serial, 1);
+HogeHoge::SensorModule HogeHoge::Hoge::sensor_module_1(HogeHoge::Hoge::serial, 1);
+HogeHoge::SolenoidModule HogeHoge::Hoge::solenoid_module_1(HogeHoge::Hoge::serial, 1);
 
 // By including this file, instantiate hoge.
 HogeHoge::Hoge hoge;
