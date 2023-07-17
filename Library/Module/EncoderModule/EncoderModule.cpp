@@ -30,6 +30,16 @@ void EncoderModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void
     
 }
 
+void EncoderModule::SendGetLocalization() {
+    if (module_num != 1) return;
+
+    Command((uint8_t)CMD_EncoderModule::GetLocalization, 0, 0, nullptr);
+}
+
+void EncoderModule::SendGetAllPulse() {
+    Command((uint8_t)CMD_EncoderModule::GetAllPulse, 0, 0, nullptr);
+}
+
 short EncoderModule::GetPulse(uint8_t device_id) {
     // Argument check
     if (device_id > 4 | device_id < 1) return 0;

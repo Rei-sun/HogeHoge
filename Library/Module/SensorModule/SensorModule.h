@@ -1,6 +1,7 @@
 #pragma once
 #include <HogeHogeSerial.h>
 #include <BaseModule.h>
+#include <CommandDefinition.h>
 
 namespace HogeHoge {
     class SensorModule : public BaseModule {
@@ -57,6 +58,8 @@ namespace HogeHoge {
         /// @param length Size of received data size
         /// @param data received data
         void Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) override;
+
+        void SendGetSensorData();
 
         bool GetSwitch(uint8_t device_id);
         short GetAnalog(uint8_t device_id);

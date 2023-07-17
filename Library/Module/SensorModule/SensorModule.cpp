@@ -32,6 +32,10 @@ void SensorModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void*
     
 }
 
+void SensorModule::SendGetSensorData() {
+    Command((uint8_t)CMD_SensorModule::GetSensorData, 0, 0, nullptr);
+}
+
 bool SensorModule::GetSwitch(uint8_t device_id) {
     // Argument check
     if (device_id > 7 || device_id < 1) return false;

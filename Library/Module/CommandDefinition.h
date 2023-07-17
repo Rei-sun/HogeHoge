@@ -2,8 +2,7 @@
 
 namespace HogeHoge {
     enum class CMD_MotorControlModule {
-        SetAllDuty,
-        SetDuty
+        SetAllDuty
     };
 
     enum class CMD_EncoderModule {
@@ -12,8 +11,7 @@ namespace HogeHoge {
     };
 
     enum class CMD_SensorModule {
-        GetDigital,
-        GetAnalog
+        GetSensorData
     };
 
     enum class CMD_SolenoidModule {
