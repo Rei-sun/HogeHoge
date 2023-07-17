@@ -1,4 +1,4 @@
-@startuml クラス図
+@startuml クラス図Ex
 
 class BaseModule {
 
