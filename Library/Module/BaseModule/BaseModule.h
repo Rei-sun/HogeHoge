@@ -7,9 +7,10 @@ namespace HogeHoge {
         ModuleID module_id;
         uint8_t module_num;
         HogeHogeSerial &serial;
+        bool wait_for_response;
 
         BaseModule(HogeHogeSerial &_serial, ModuleID _module_id, uint8_t _module_num):
-            serial(_serial), module_id(_module_id), module_num(_module_num)
+            serial(_serial), module_id(_module_id), module_num(_module_num), wait_for_response(false)
         {
 
         }
