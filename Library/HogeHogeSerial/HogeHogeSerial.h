@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <ios>
 #include <sstream>
+#include <queue>
+#include <vector>
 
 namespace HogeHoge {
     /// @brief Module ID

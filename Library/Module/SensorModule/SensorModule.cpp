@@ -24,18 +24,30 @@ SensorModule::SensorModule(HogeHogeSerial &_serial, uint8_t _module_num):
 }
 
 bool SensorModule::Command(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
+    if(!serial.IsConnect()) return false;
+    
+    wait_for_response = true;
+    
     serial.Send((uint8_t)module_id, cmd, module_num, device_id, length, data);
+    
+    while (wait_for_response) {
+        continue;
+    }
+
     return true;
 }
 
 void SensorModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
+    wait_for_response = false;
+    
     if (cmd == (uint8_t)CMD_SensorModule::GetSensorData) {
         auto uint8_data = (uint8_t*)data;
         in_swich_state.all = uint8_data[0];
-        auto short_array = (short*)(uint8_t*)data;
+        auto short_array = (short*)((uint8_t*)data + 1);
         for (int i = 0; i < 6; i++) {
             *value_map[i] = short_array[i];
         }
+        printf("%5d, %5d, %5d, %5d, %5d, %5d\n", in_analog_1, in_analog_2, in_analog_3, in_analog_4, in_analog_5, in_analog_6);
     } else {
         printf("undefined command\n");
     }

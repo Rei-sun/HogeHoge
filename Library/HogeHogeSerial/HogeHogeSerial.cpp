@@ -2,22 +2,10 @@
 
 using namespace HogeHoge;
 
-void HogeHogeSerial::OnReceive(void* recv_data, size_t recv_size) {
-    auto data = (uint8_t*)recv_data;
-    
-    printf("recv %ld byte: ", recv_size);
-
-    for (int i = 0; i < recv_size; i++) {
-        printf("%x, ", data[i]);   
-    }
-    printf("\n");
-}
-
 HogeHogeSerial::HogeHogeSerial(std::string device_name) :
     SerialCommunication(),
     target_device_name(device_name)
 {
-    RegisterCallbackOnReceive([this](void* data, size_t size){ OnReceive(data, size); });
     Open(target_device_name, true);
 }
 
