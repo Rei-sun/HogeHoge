@@ -3,6 +3,7 @@
 using namespace HogeHoge;
 
 bool SolenoidModule::Command(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
+    if(!serial.IsConnect()) return false;
     serial.Send((uint8_t)module_id, cmd, module_num, device_id, length, data);
     return true;
 }
