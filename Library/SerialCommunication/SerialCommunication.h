@@ -25,6 +25,7 @@
 #include <memory>
 #include <sys/ioctl.h>
 #include <mutex>
+//#include <linux/serial.h>
 
 /**
  * @namespace HogeHoge
@@ -145,6 +146,12 @@ namespace HogeHoge {
          * @brief Close communication function
         */
         void Close();
+
+        /**
+         * @brief Close communication function
+         * @return connect or not connect
+        */
+        bool IsConnect();
 
         /**
          * @brief Transmit function

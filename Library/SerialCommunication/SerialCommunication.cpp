@@ -31,6 +31,14 @@ void SerialCommunication::CommunicationProcess() {
     fd_set rfds;
     struct timeval tv;
 
+    // そういう問題ではなかった
+    // struct serial_struct serial_setting;
+    // ioctl(fd, TIOCGSERIAL, &serial_setting);
+    // serial_setting.flags |= ASYNC_LOW_LATENCY;
+    // ioctl(fd, TIOCSSERIAL, &serial_setting);
+    // int nread = 0;
+    // ioctl(fd, FIONREAD, &nread);
+
     while(thread_continue){
         if (is_connected) {
             FD_ZERO(&rfds);
@@ -98,13 +106,15 @@ bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect
     tcgetattr(fd, &config_tio);
     
     // Configure
-    speed_t BAUDRATE = B1000000;
+    cfmakeraw(&config_tio);
+    
+    speed_t BAUDRATE = B2000000;
     cfsetispeed(&config_tio, BAUDRATE);
     cfsetospeed(&config_tio, BAUDRATE);
 
-    config_tio.c_iflag = 0;
-    config_tio.c_oflag = 0;
-    config_tio.c_lflag = 0;
+    // config_tio.c_iflag = 0;
+    // config_tio.c_oflag = 0;
+    // config_tio.c_lflag = 0;
     
     config_tio.c_cc[VMIN] = 0;
     config_tio.c_cc[VTIME] = 0;
@@ -201,6 +211,10 @@ void SerialCommunication::Close() {
     CloseSerialPort();
 }
 
+bool SerialCommunication::IsConnect() {
+    return is_connected;
+}
+
 void SerialCommunication::Transmit(uint8_t *data, size_t size) {
     if (!is_connected) return;
     int32_t written = write(fd, data, size);
@@ -213,7 +227,7 @@ void SerialCommunication::Transmit(uint8_t *data, size_t size) {
             transmit_failure_count--;
         }
         transmit_failure_count = false;
-        printf("transmit %d byte\n", written);
+        // printf("transmit %d byte\n", written);
     }
 }
 
