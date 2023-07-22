@@ -24,14 +24,37 @@ Checksum = Sum(1 byte:5+n byte) % 0xFF
 ModuleID&Command 定義
 000: （未定義）
 001: MotorControlModule
-    000: Set Duty
+    000: Invalid（未定義）
+    001: OK（未定義）
+    002: Set Duty
 002: EncoderModule
-    000: Get localization (x y yaw)
-    001: Get encoder pulse (position)
-    002: Get encoder pulse (speed)
+    000: Invalid
+    001: OK（未定義）
+    002: Get localization (x y yaw)
+    003: Get encoder pulse
 003: SensorModule
-    000: Get all digital sensor (hi/low)
-    001: Get analog senor
+    000: Invalid（未定義）
+    001: OK（未定義）
+    002: Get all sensor 
 004: SolenoidModule
-    000: Set ON/OFF
+    000: Invalid（未定義）
+    001: OK（未定義）
+    002: Set ON/OFF
 
+MotorControlModule
+    Set Duty
+        送信: Dataには、float型が6個が入る。モータの出力を表す。
+EncoderModule
+    Get localization
+        送信: Dataなし。
+        受信: Dataには、postioin x, position y, yaw の順番でfloat型が3つ入る。
+    Get encoder pulse
+        送信: Dataなし。
+        受信: Dataには、short型が3つ入る。エンコーダのパルスを表す。
+SensorModule
+    Get all sensor
+        送信: Dataなし。
+        受信: Dataには、short型が7つ入る。1つめはスイッチの状態を示す。それ以降はADCの値を示す。
+SolenoidModule
+    Set ON/OFF
+        送信: Dataには、unsigned char型が1個が入る。ソレノイドの状態を示す。
