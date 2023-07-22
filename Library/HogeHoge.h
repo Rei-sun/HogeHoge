@@ -30,6 +30,62 @@ namespace HogeHoge {
             signal(SIGINT, Hoge::abort_handler);
         }
 
+        void OnReceive(void* recv_data, size_t recv_size) {
+        auto data = (uint8_t*)recv_data;
+        
+        // Copy to data buffer
+        for (int i = 0; i < recv_size; i++) {
+            receive_data_buffer.push(data[i]);
+        }
+
+        while (1) {
+            // If "recv_size" more less then 6, cannot interpreta　message.
+            if (receive_data_buffer.size() < 6) break;
+
+            // Read message from data buffer
+            for (int i = 0; tmp_buffer.size() < 5; i++) {
+                tmp_buffer.push_back(receive_data_buffer.front());
+                receive_data_buffer.pop();
+            }
+            uint8_t length = tmp_buffer[4];
+
+            if (receive_data_buffer.size() < length + 1/*checksum*/) break;
+
+            for (int i = 0; tmp_buffer.size() < 5 + length + 1; i++) {
+                tmp_buffer.push_back(receive_data_buffer.front());
+                receive_data_buffer.pop();
+            }
+
+            receive_msg_buffer.push(tmp_buffer);
+            tmp_buffer.clear();
+        }
+
+        for (int i = 0; i < receive_msg_buffer.size(); i++) {
+            auto msg = receive_msg_buffer.front();
+            receive_msg_buffer.pop();
+
+            uint8_t module_num = msg[2];
+
+            switch (msg[0])
+            {
+                case (uint8_t)ModuleID::MotorControlModule:
+                    // nothing
+                    break;
+                case (uint8_t)ModuleID::EncoderModule:
+                    if (module_num == 1) encoder_module_1.Receive(msg[1], msg[3], msg[4], &msg[5]);
+                    break;
+                case (uint8_t)ModuleID::SensorModule:
+                    if (module_num == 1) sensor_module_1.Receive(msg[1], msg[3], msg[4], &msg[5]);
+                    break;
+                case (uint8_t)ModuleID::SolenoidModule:
+                    // nothing
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     public:
         // Instance for serial communication
         static HogeHogeSerial serial;
@@ -46,12 +102,17 @@ namespace HogeHoge {
         // Solenoid module
         static SolenoidModule solenoid_module_1;
 
+        std::queue<uint8_t> receive_data_buffer;
+        std::queue<std::vector<uint8_t>> receive_msg_buffer;
+        std::vector<uint8_t> tmp_buffer;
+
         /**
          * @brief Constructer
         */
         Hoge()
         {
             RegisterAbort();
+            serial.RegisterCallbackOnReceive([this](void* data, size_t size){ OnReceive(data, size); });
         }
 
         /**
