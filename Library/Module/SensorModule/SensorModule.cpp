@@ -47,7 +47,7 @@ void SensorModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void*
         for (int i = 0; i < 6; i++) {
             *value_map[i] = short_array[i];
         }
-        printf("%5d, %5d, %5d, %5d, %5d, %5d\n", in_analog_1, in_analog_2, in_analog_3, in_analog_4, in_analog_5, in_analog_6);
+        printf("0x%02x, %5d, %5d, %5d, %5d, %5d, %5d\n", in_swich_state.all, in_analog_1, in_analog_2, in_analog_3, in_analog_4, in_analog_5, in_analog_6);
     } else {
         printf("undefined command\n");
     }
