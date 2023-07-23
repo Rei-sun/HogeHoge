@@ -2,25 +2,26 @@
 #define _H_HOGEHOGESERIAL_
 
 #include "CommunicationDefinition.h"
+#include "ModuleDefinition.h"
+#include "EncoderMod.h"
+#include "SensorMod.h"
 #include "HardwareSerial.h"
 #include <vector>
 #include <stdint.h>
 
 using namespace HogeHoge;
 
-enum class ModuleID {
-  UndefinedModule,
-  MotorControlModule,
-  EncoderModule,
-  SensorModule,
-  SolenoidModule
-};
-
 class HogeHogeSerial {
   std::vector<uint8_t> buffer;
+  EncoderMod &encoderMod;
+  SensorMod &sensorMod;
 public:
-  HogeHogeSerial()
-    : buffer() {
+  HogeHogeSerial(EncoderMod &_encoderMod, SensorMod &_sensorMod) :
+    buffer(),
+    encoderMod(_encoderMod),
+    sensorMod(_sensorMod)
+  {
+  
   }
 
   void ReceiveByte(uint8_t data) {
@@ -82,10 +83,10 @@ public:
 
   void ResponseEncoder(uint8_t cmd, uint8_t mod_n, uint8_t div_n, uint8_t length, void* data) {
     if (cmd == (uint8_t)CMD_EncoderModule::GetLocalization) {
-      float value_array[] = { 1.0f, 2.5f, 3.14f };
+      float value_array[] = { encoderMod.GetPositionX(), encoderMod.GetPositionY(), encoderMod.GetEulerYaw() };
       Response((uint8_t)ModuleID::EncoderModule, cmd, mod_n, div_n, sizeof(float) * 3, value_array);
     } else if (cmd == (uint8_t)CMD_EncoderModule::GetAllPulse) {
-      short value_array[] = { 1111, 2222, 3333, 4444 };
+      short value_array[] = { encoderMod.GetPulse(1), encoderMod.GetPulse(2), encoderMod.GetPulse(3), encoderMod.GetPulse(4) };
       Response((uint8_t)ModuleID::EncoderModule, cmd, mod_n, div_n, sizeof(float) * 4, value_array);
     } else {
       Response((uint8_t)ModuleID::EncoderModule, (uint8_t)CMD_EncoderModule::Invalid, mod_n, div_n, 0, nullptr);
@@ -95,8 +96,8 @@ public:
   void ResponseSensor(uint8_t cmd, uint8_t mod_n, uint8_t div_n, uint8_t length, void* data) {
     if (cmd == (uint8_t)CMD_SensorModule::GetSensorData) {
       uint8_t byte_array[13] = {0};
-      short value_array[] = { 111, 222, 333, 444, 555, 666 };
-      byte_array[0] = 0x33;
+      short value_array[] = { sensorMod.GetAnalog(1), sensorMod.GetAnalog(2), sensorMod.GetAnalog(3), sensorMod.GetAnalog(4), sensorMod.GetAnalog(5), sensorMod.GetAnalog(6) };
+      byte_array[0] = sensorMod.switch_state.all;
       for (int i = 0; i < 12; i++) {
         byte_array[1 + i] = ((uint8_t*)value_array)[i];
       }
