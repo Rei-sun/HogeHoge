@@ -21,6 +21,7 @@ namespace HogeHoge {
         */
         static void abort_handler(int sig) {
             Hoge::condition = false;
+            printf("Keyboard interrupted.\n");
         }
 
         /**
