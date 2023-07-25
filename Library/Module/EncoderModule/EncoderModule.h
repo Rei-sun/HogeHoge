@@ -15,7 +15,9 @@ namespace HogeHoge {
         short in_pulse_4;       // device_id = 4, input
         float in_position_x;    // position axis x [mm] (module_num = 1 only)
         float in_position_y;    // position axis y [mm] (module_num = 1 only)
-        float in_yaw;           // yaw [rad] (module_num = 1 only)
+        float in_roll;          // roll [deg] (module_num = 1 only)
+        float in_pitch;         // pitch [deg] (module_num = 1 only)
+        float in_yaw;           // yaw [deg] (module_num = 1 only)
 
         short* const value_map[4];
 
@@ -49,6 +51,8 @@ namespace HogeHoge {
         short GetPulse(uint8_t device_id);
         float GetPositionX();
         float GetPositionY();
+        float GetEulerRoll();
+        float GetEulerPitch();
         float GetEulerYaw();
     };
 }

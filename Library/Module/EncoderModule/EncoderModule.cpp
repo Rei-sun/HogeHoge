@@ -10,6 +10,8 @@ EncoderModule::EncoderModule(HogeHogeSerial &_serial, uint8_t _module_num):
     in_pulse_4(0),
     in_position_x(0.0f),
     in_position_y(0.0f),
+    in_roll(0.0f),
+    in_pitch(0.0f),
     in_yaw(0.0f),
     value_map{
         &in_pulse_1,
@@ -42,14 +44,16 @@ void EncoderModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void
         auto pose_array = (float*)data;
         in_position_x = pose_array[0];
         in_position_y = pose_array[1];
-        in_yaw = pose_array[2];
-        printf("%5.2f, %5.2f, %5.2f\n", in_position_x, in_position_y, in_yaw);
+        in_roll = pose_array[2];
+        in_pitch = pose_array[3];
+        in_yaw = pose_array[4];
+        //printf("%5.2f, %5.2f, %5.2f\n", in_position_x, in_position_y, in_yaw);
     } else if (cmd == (uint8_t)CMD_EncoderModule::GetAllPulse) {
         auto pulse_array = (short*)data;
         for (int i = 0; i < 4; i++) {
             *value_map[i] = pulse_array[i];
         }
-        printf("%5d, %5d, %5d, %5d\n", in_pulse_1, in_pulse_2, in_pulse_3, in_pulse_4);
+        //printf("%5d, %5d, %5d, %5d\n", in_pulse_1, in_pulse_2, in_pulse_3, in_pulse_4);
     } else {
         printf("undefined command\n");
     }
@@ -78,6 +82,14 @@ float EncoderModule::GetPositionX() {
 
 float EncoderModule::GetPositionY() {
     return in_position_y;
+}
+
+float EncoderModule::GetEulerRoll() {
+    return in_roll;
+}
+
+float EncoderModule::GetEulerPitch() {
+    return in_pitch;
 }
 
 float EncoderModule::GetEulerYaw() {
