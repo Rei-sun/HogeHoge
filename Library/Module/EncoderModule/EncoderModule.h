@@ -45,6 +45,8 @@ namespace HogeHoge {
         /// @param data received data
         void Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void* data) override;
 
+        std::pair<uint8_t, std::shared_ptr<uint8_t[]>> Serialized() override;
+
         void SendGetLocalization();
         void SendGetAllPulse();
 

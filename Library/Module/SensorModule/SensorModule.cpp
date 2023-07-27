@@ -53,6 +53,34 @@ void SensorModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void*
     }
 }
 
+std::pair<uint8_t, std::shared_ptr<uint8_t[]>> SensorModule::Serialized() {
+    uint8_t byte_array[] {
+        in_swich_state.all
+    };
+    short short_array[] = {
+        in_analog_1,
+        in_analog_2,
+        in_analog_3,
+        in_analog_4,
+        in_analog_5,
+        in_analog_6
+    };
+
+    uint8_t ba_size = sizeof(byte_array);
+    uint8_t sa_size = sizeof(short_array);
+
+    if (serialized.get() == nullptr) {
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[2 + ba_size + sa_size]);
+    }
+
+    serialized.get()[0] = (uint8_t)module_id;
+    serialized.get()[1] = (uint8_t)module_num;
+    memcpy(serialized.get() + 2, byte_array, ba_size);
+    memcpy(serialized.get() + 2 + ba_size, short_array, sa_size);
+
+    return std::make_pair(2 + ba_size + sa_size, serialized);
+}
+
 void SensorModule::SendGetSensorData() {
     Command((uint8_t)CMD_SensorModule::GetSensorData, 0, 0, nullptr);
 }

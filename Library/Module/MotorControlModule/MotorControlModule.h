@@ -53,6 +53,8 @@ namespace HogeHoge {
         /// @brief batch sending
         void SendBatch() override;
 
+        std::pair<uint8_t, std::shared_ptr<uint8_t[]>> Serialized() override;
+
         /// @brief Set PWM duty function
         /// @param device_id
         /// @param duty

@@ -61,6 +61,8 @@ namespace HogeHoge {
 
         void SendGetSensorData();
 
+        std::pair<uint8_t, std::shared_ptr<uint8_t[]>> Serialized() override;
+
         bool GetSwitch(uint8_t device_id);
         short GetAnalog(uint8_t device_id);
     };

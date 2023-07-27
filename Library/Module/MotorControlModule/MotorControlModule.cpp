@@ -38,6 +38,28 @@ void MotorControlModule::SendBatch() {
     Command((uint8_t)CMD_MotorControlModule::SetAllDuty, 0, sizeof(float) * 6, (void *)value_map[0]);
 }
 
+std::pair<uint8_t, std::shared_ptr<uint8_t[]>> MotorControlModule::Serialized() {
+    float float_array[] = {
+        out_pwm_1,
+        out_pwm_2,
+        out_pwm_3,
+        out_pwm_4,
+        out_pwm_5,
+        out_pwm_6
+    };
+    uint8_t fa_size = sizeof(float_array);
+
+    if (serialized.get() == nullptr) {
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[2 + fa_size]);
+    }
+
+    serialized.get()[0] = (uint8_t)module_id;
+    serialized.get()[1] = (uint8_t)module_num;
+    memcpy(serialized.get() + 2, float_array, fa_size);
+
+    return std::make_pair(2 + fa_size, serialized);
+}
+
 void MotorControlModule::SetDuty(uint8_t device_id, float duty) {
     // Argument check
     if (device_id > 6 || device_id < 1) return;

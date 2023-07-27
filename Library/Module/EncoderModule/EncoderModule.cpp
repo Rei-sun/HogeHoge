@@ -59,6 +59,35 @@ void EncoderModule::Receive(uint8_t cmd, uint8_t device_id, uint8_t length, void
     }
 }
 
+std::pair<uint8_t, std::shared_ptr<uint8_t[]>> EncoderModule::Serialized() {
+    short short_array[] = {
+        in_pulse_1,
+        in_pulse_2,
+        in_pulse_3,
+        in_pulse_4
+    };
+    float float_array[] = {
+        in_position_x,
+        in_position_y,
+        in_roll,
+        in_pitch,
+        in_yaw
+    };
+    uint8_t sa_size = sizeof(short_array);
+    uint8_t fa_size = sizeof(float_array);
+
+    if (serialized.get() == nullptr) {
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[2 + sa_size + fa_size]);
+    }
+
+    serialized.get()[0] = (uint8_t)module_id;
+    serialized.get()[1] = (uint8_t)module_num;
+    memcpy(serialized.get() + 2, short_array, sa_size);
+    memcpy(serialized.get() + 2 + sa_size, float_array, fa_size);
+
+    return std::make_pair(2 + sa_size + fa_size, serialized);
+}
+
 void EncoderModule::SendGetLocalization() {
     if (module_num != 1) return;
 

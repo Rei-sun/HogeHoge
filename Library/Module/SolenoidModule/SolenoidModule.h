@@ -47,6 +47,8 @@ namespace HogeHoge {
         /// @brief batch sending
         void SendBatch() override;
 
+        std::pair<uint8_t, std::shared_ptr<uint8_t[]>> Serialized() override;
+
         void SetState(uint8_t device_id, bool state);
 
         bool GetState(uint8_t device_id);
