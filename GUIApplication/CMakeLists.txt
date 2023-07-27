@@ -2,12 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 
 project(GUIApp)
 
-find_package(Qt5Widgets REQUIRED)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_executable( ${PROJECT_NAME}
-    Application/main.cpp
-)
+set(LIB_DIR ${PROJECT_SOURCE_DIR}/Library)
 
-target_link_libraries( ${PROJECT_NAME}
-    Qt5::Widgets
-)
+add_subdirectory(Application)
+add_subdirectory(Library)
