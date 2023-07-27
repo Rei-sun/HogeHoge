@@ -4,9 +4,13 @@
 #include <string>
 #include <signal.h>
 
+#include <GUICommunication/GUICommunication.h>
+
 using namespace HogeHoge;
 
 int main(){
+    GUICommunication gcommu(20000);
+    
     printf("pid = %d\n", getpid());
 
     Timer timer;
@@ -43,7 +47,7 @@ int main(){
 
         end = std::chrono::system_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
-        std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() << "]" << "processing time = " << elapsed << std::endl;
+        // std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() << "]" << "processing time = " << elapsed << std::endl;
 
         timer.Sleep();
     }
