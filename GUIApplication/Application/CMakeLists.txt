@@ -8,8 +8,10 @@ target_include_directories( ${PROJECT_NAME} PUBLIC
     ${LIB_DIR}/
     ${LIB_DIR}/Socket/
     ${LIB_DIR}/Module/
+    ${LIB_DIR}/DeviceValue/
 )
 
 target_link_libraries( ${PROJECT_NAME}
+    Module
     Qt5::Widgets
 )

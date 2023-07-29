@@ -183,6 +183,7 @@ void* Server::CommThread(void* p){
                         close(server->client_fds[i]);
                         server->client_fds.erase(server->client_fds.begin() + i);
                     } else {
+                        perror("read");
                         goto end;
                     }
                 }
