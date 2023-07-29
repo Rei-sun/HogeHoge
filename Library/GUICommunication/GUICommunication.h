@@ -21,23 +21,23 @@ public:
         if (cmd[1] == "EncoderModule") {
             if (num == 1) {
                 auto serialized = Hoge::encoder_module_1.Serialized();
-                sp->SendData(client_fd, serialized.second.get(), serialized.first);
+                sp->SendData(0, serialized.second.get(), serialized.first);
                 //printf("Send\n");
             }
         } else if (cmd[1] == "MotorControlModule") {
             if (num == 1) {
                 auto serialized = Hoge::motor_control_module_1.Serialized();
-                sp->SendData(client_fd, serialized.second.get(), serialized.first);
+                sp->SendData(0, serialized.second.get(), serialized.first);
             }
         } else if (cmd[1] == "SensorModule") {
             if (num == 1) {
                 auto serialized = Hoge::sensor_module_1.Serialized();
-                sp->SendData(client_fd, serialized.second.get(), serialized.first);
+                sp->SendData(0, serialized.second.get(), serialized.first);
             }
         } else if (cmd[1] == "SolenoidModule") {
             if (num == 1) {
                 auto serialized = Hoge::solenoid_module_1.Serialized();
-                sp->SendData(client_fd, serialized.second.get(), serialized.first);
+                sp->SendData(0, serialized.second.get(), serialized.first);
             }
         }
         
