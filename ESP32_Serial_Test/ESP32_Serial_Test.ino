@@ -1,6 +1,9 @@
 #include "HogeHogeSerial.h"
 #include "EncoderMod.h"
 #include "SensorMod.h"
+#include "MotorControlMod.h"
+#include "SolenoidMod.h"
+
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
@@ -10,16 +13,34 @@
 
 hw_timer_t * timer = NULL;
 
+int input_pin_1 = 13;
+int input_pin_2 = 12;
+int input_pin_3 = 14;
+int input_pin_4 = 27;
+int input_pin_5 = 15;
+int adc_pin_1 = 34;
+int output_pin_1 = 18;
+int output_pin_2 = 19;
+int output_pin_3 = 23;
+int pwm_pin_1 = 26;
+int pwm_ch_1 = 0;
+int pwm_pin_2 = 25;
+int pwm_ch_2 = 1;
+int pwm_pin_3 = 33;
+int pwm_ch_3 = 2;
+int pwm_pin_4 = 32;
+int pwm_ch_4 = 3;
+
 EncoderMod encoderModule(1);
 SensorMod sensorModule(1);
+MotorControlMod motorControlModule(1, pwm_ch_1, pwm_pin_1, pwm_ch_2, pwm_pin_2, pwm_ch_3, pwm_pin_3, pwm_ch_4, pwm_pin_4);
+SolenoidMod solenoidModule(1, output_pin_1, output_pin_2, output_pin_3);
+
 Adafruit_BNO055 bno = Adafruit_BNO055(-1, 0x28);
-HogeHogeSerial hogehoge(encoderModule, sensorModule);
+HogeHogeSerial hogehoge(encoderModule, sensorModule, motorControlModule, solenoidModule);
 
 bool BNO055Begin = false;
 volatile bool interrupt = false;
-
-int gpio_pin = 32;
-int adc_pin = 34;
 
 void IRAM_ATTR onTimer() {
   interrupt = true;
@@ -35,7 +56,18 @@ void setup() {
   //-----------------------------------
   // GPIO 設定
   //-----------------------------------
-  pinMode(gpio_pin, INPUT_PULLDOWN);
+  pinMode(input_pin_1, INPUT_PULLDOWN);
+  pinMode(input_pin_2, INPUT_PULLDOWN);
+  pinMode(input_pin_3, INPUT_PULLDOWN);
+  pinMode(input_pin_4, INPUT_PULLDOWN);
+  pinMode(input_pin_5, INPUT_PULLDOWN);
+  
+  solenoidModule.Begin();
+  
+  //-----------------------------------
+  // PWM 設定
+  //-----------------------------------
+  motorControlModule.Begin();
 
   //-----------------------------------
   // ADC 設定
@@ -77,13 +109,22 @@ void loop() {
       // *(encoderModule.pulse_map[1]) = 2222;
       // *(encoderModule.pulse_map[2]) = 3333;
       // *(encoderModule.pulse_map[3]) = 4444;
-      encoderModule.position_x = euler.x();
-      encoderModule.position_y = euler.y();
-      encoderModule.yaw = euler.z();
+      encoderModule.yaw = euler.x();
+      encoderModule.pitch = euler.y();
+      encoderModule.roll = euler.z();
     }
 
-    sensorModule.switch_state.bits.switch_1 = digitalRead(gpio_pin);
-    sensorModule.adc_1 = analogRead(adc_pin);
+    sensorModule.switch_state.bits.switch_1 = digitalRead(input_pin_1);
+    sensorModule.switch_state.bits.switch_2 = digitalRead(input_pin_2);
+    sensorModule.switch_state.bits.switch_3 = digitalRead(input_pin_3);
+    sensorModule.switch_state.bits.switch_4 = digitalRead(input_pin_4);
+    sensorModule.switch_state.bits.switch_5 = digitalRead(input_pin_5);
+    sensorModule.adc_1 = analogRead(adc_pin_1);
+
+    motorControlModule.UpdateAll();
+    solenoidModule.UpdateAll();
+
+    //Serial.printf("%d, %d, %d, %d\n", sensorModule.switch_state.bits.switch_1, sensorModule.switch_state.bits.switch_2, sensorModule.switch_state.bits.switch_3, sensorModule.switch_state.bits.switch_4);
 
     interrupt = false;
   }

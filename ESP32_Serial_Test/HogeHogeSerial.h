@@ -5,6 +5,8 @@
 #include "ModuleDefinition.h"
 #include "EncoderMod.h"
 #include "SensorMod.h"
+#include "MotorControlMod.h"
+#include "SolenoidMod.h"
 #include "HardwareSerial.h"
 #include <vector>
 #include <stdint.h>
@@ -15,11 +17,15 @@ class HogeHogeSerial {
   std::vector<uint8_t> buffer;
   EncoderMod &encoderMod;
   SensorMod &sensorMod;
+  MotorControlMod &motorControlMod;
+  SolenoidMod &solenoidMod;
 public:
-  HogeHogeSerial(EncoderMod &_encoderMod, SensorMod &_sensorMod) :
+  HogeHogeSerial(EncoderMod &_encoderMod, SensorMod &_sensorMod, MotorControlMod &_motorControlMod, SolenoidMod &_solenoidMod) :
     buffer(),
     encoderMod(_encoderMod),
-    sensorMod(_sensorMod)
+    sensorMod(_sensorMod),
+    motorControlMod(_motorControlMod),
+    solenoidMod(_solenoidMod)
   {
   
   }
@@ -46,7 +52,7 @@ public:
 
     switch (module_id) {
       case (uint8_t)ModuleID::MotorControlModule:
-        // nothing
+        ReceiveMotorControl(command, module_num, device_id, length, rx_data);
         break;
       case (uint8_t)ModuleID::EncoderModule:
         //if (module_num == 1) ;
@@ -57,7 +63,7 @@ public:
         ResponseSensor(command, module_num, device_id, length, rx_data);
         break;
       case (uint8_t)ModuleID::SolenoidModule:
-        // nothing
+        ReceiveSolenoid(command, module_num, device_id, length, rx_data);
         break;
       default:
         break;
@@ -83,8 +89,8 @@ public:
 
   void ResponseEncoder(uint8_t cmd, uint8_t mod_n, uint8_t div_n, uint8_t length, void* data) {
     if (cmd == (uint8_t)CMD_EncoderModule::GetLocalization) {
-      float value_array[] = { encoderMod.GetPositionX(), encoderMod.GetPositionY(), encoderMod.GetEulerYaw() };
-      Response((uint8_t)ModuleID::EncoderModule, cmd, mod_n, div_n, sizeof(float) * 3, value_array);
+      float value_array[] = { encoderMod.GetPositionX(), encoderMod.GetPositionY(), encoderMod.GetEulerRoll(), encoderMod.GetEulerPitch(), encoderMod.GetEulerYaw() };
+      Response((uint8_t)ModuleID::EncoderModule, cmd, mod_n, div_n, sizeof(float) * 5, value_array);
     } else if (cmd == (uint8_t)CMD_EncoderModule::GetAllPulse) {
       short value_array[] = { encoderMod.GetPulse(1), encoderMod.GetPulse(2), encoderMod.GetPulse(3), encoderMod.GetPulse(4) };
       Response((uint8_t)ModuleID::EncoderModule, cmd, mod_n, div_n, sizeof(float) * 4, value_array);
@@ -104,6 +110,20 @@ public:
       Response((uint8_t)ModuleID::SensorModule, cmd, mod_n, div_n, sizeof(uint8_t) + sizeof(short) * 6, byte_array);
     } else {
       Response((uint8_t)ModuleID::SensorModule, (uint8_t)CMD_SensorModule::Invalid, mod_n, div_n, 0, nullptr);
+    }
+  }
+
+  void ReceiveMotorControl(uint8_t cmd, uint8_t mod_n, uint8_t div_n, uint8_t length, void* data) {
+    if (cmd == (uint8_t)CMD_MotorControlModule::SetAllDuty) {
+      float *duty_array = (float*)data;
+      for(int i = 0; i < 6; i++) *motorControlMod.duty_map[i] = duty_array[i];
+    }
+  }
+
+  void ReceiveSolenoid(uint8_t cmd, uint8_t mod_n, uint8_t div_n, uint8_t length, void* data) {
+    if (cmd == (uint8_t)CMD_SolenoidModule::SetAllState) {
+      uint8_t *data_array = (uint8_t*)data;
+      solenoidMod.solenoid_state.all = data_array[0];
     }
   }
 

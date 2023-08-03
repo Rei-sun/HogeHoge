@@ -11,6 +11,8 @@ public:
   short pulse_4;
   float position_x;
   float position_y;
+  float roll;
+  float pitch;
   float yaw;
 
   short* const pulse_map[4];
@@ -23,6 +25,8 @@ public:
     pulse_4(0),
     position_x(0.f),
     position_y(0.f),
+    roll(0.f),
+    pitch(0.f),
     yaw(0.f),
     pulse_map{
       &pulse_1,
@@ -40,11 +44,19 @@ public:
   }
 
   float GetPositionX() {
-      return position_x;
+    return position_x;
   }
 
   float GetPositionY() {
-      return position_y;
+    return position_y;
+  }
+
+  float GetEulerRoll() {
+    return roll;
+  }
+
+  float GetEulerPitch() {
+    return pitch;
   }
 
   float GetEulerYaw() {
