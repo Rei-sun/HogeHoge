@@ -24,7 +24,7 @@ template<typename T> class DeviceValueLabel : public QLabel, public DeviceValue<
     DeviceValueLabel(QWidget* widget, int ax, int ay, std::function<T()> f) : QLabel(widget), DeviceValue<T>() {
         DeviceValue<T>::func = f;
         setFixedSize(50,20);
-        setText("000.000");
+        setText("undefined type?");
     }
 
     void Update() {

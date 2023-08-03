@@ -9,6 +9,7 @@ target_include_directories( ${PROJECT_NAME} PUBLIC
     ${LIB_DIR}/Socket/
     ${LIB_DIR}/Module/
     ${LIB_DIR}/DeviceValue/
+    ${APP_DIR}/
 )
 
 target_link_libraries( ${PROJECT_NAME}
