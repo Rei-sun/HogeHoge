@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
     MainWindow *widget = new MainWindow;
 
     widget->setFixedSize(800, 800);
-    widget->setStatusTip("Hello");
 
     QTimer aTimer;
     aTimer.setInterval(20);
