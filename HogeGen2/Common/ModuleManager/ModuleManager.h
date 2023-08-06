@@ -4,31 +4,67 @@
 
 #include <vector>
 
-namespace HogeGen2{
+namespace HogeGen2 {
+
 class ModuleManager {
-    static std::vector<EncoderModule*> encoderModules;
-    static std::vector<SensorModule*> sensorModules;
-    static std::vector<MotorModule*> motorModules;
-    static std::vector<SolenoidModule*> solenoidModules;
+    inline static std::vector<EncoderModule*> encoderModules;
+    inline static std::vector<SensorModule*> sensorModules;
+    inline static std::vector<MotorModule*> motorModules;
+    inline static std::vector<SolenoidModule*> solenoidModules;
 
-    template<class T> static void MakeModule(int div_id) { for (int i = 0; i < div_id; i++) new T(i + 1); }  
+    template<class T> static std::vector<T*> MakeModule(int dev_id) {
+        std::vector<T*> v;
+        for (int i = 0; i < dev_id; i++) {
+            v.push_back(new T(i + 1));
+        }
+        return v;
+    }
 public:
-    std::vector<EncoderModule*> GetEncoderModules() { return encoderModules; }
+    static std::vector<EncoderModule*> GetEncoderModules() { return encoderModules; }
 
-    std::vector<SensorModule*> GetSensorModules() { return sensorModules; }
+    static std::vector<SensorModule*> GetSensorModules() { return sensorModules; }
 
-    std::vector<MotorModule*> GetMotorControlModules() { return motorModules; }
+    static std::vector<MotorModule*> GetMotorModules() { return motorModules; }
 
-    std::vector<SolenoidModule*> GetSolenoidModules() { return solenoidModules; }
+    static std::vector<SolenoidModule*> GetSolenoidModules() { return solenoidModules; }
 
-    static void MakeEncoderModule(int div_id) { MakeModule<EncoderModule>(div_id); }
+    static void MakeEncoderModule(int dev_id) {
+        auto vp = MakeModule<EncoderModule>(dev_id);    
+        encoderModules.insert(encoderModules.end(), vp.begin(), vp.end()); 
+    }
     
-    static void MakeSensorModule(int div_id) { MakeModule<SensorModule>(div_id); }
+    static void MakeSensorModule(int dev_id) {
+        auto vp = MakeModule<SensorModule>(dev_id);
+        sensorModules.insert(sensorModules.end(), vp.begin(), vp.end());
+    }
     
-    static void MakeMotorControlModule(int div_id) { MakeModule<MotorModule>(div_id); }
+    static void MakeMotorModule(int dev_id) {
+        auto vp = MakeModule<MotorModule>(dev_id);
+        motorModules.insert(motorModules.end(), vp.begin(), vp.end());
+    }
     
-    static void MakeSolenoidModule(int div_id) { MakeModule<SolenoidModule>(div_id); }
+    static void MakeSolenoidModule(int dev_id) { 
+        auto vp = MakeModule<SolenoidModule>(dev_id); 
+        solenoidModules.insert(solenoidModules.end(), vp.begin(), vp.end());
+    }
 
-    static void ReceiveData(uint8_t module_id, uint8_t module_num, uint8_t *data, int size) {}
+    template<class T> static bool IsNotValidModuleNumber(uint8_t module_num);
 };
+
+template<> bool ModuleManager::IsNotValidModuleNumber<EncoderModule>(uint8_t module_num) {
+    return (encoderModules.size() < module_num);
+}
+
+template<> bool ModuleManager::IsNotValidModuleNumber<SensorModule>(uint8_t module_num) {
+    return (sensorModules.size() < module_num);
+}
+
+template<> bool ModuleManager::IsNotValidModuleNumber<MotorModule>(uint8_t module_num) {
+    return (motorModules.size() < module_num);
+}
+
+template<> bool ModuleManager::IsNotValidModuleNumber<SolenoidModule>(uint8_t module_num) {
+    return (solenoidModules.size() < module_num);
+}
+
 }
