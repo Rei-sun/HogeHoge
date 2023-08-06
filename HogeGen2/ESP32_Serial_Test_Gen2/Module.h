@@ -18,7 +18,11 @@ class BaseModule {
 protected:
     ModuleID module_id;
     uint8_t module_num;
-    BaseModule(ModuleID id, uint8_t num) : module_id(id), module_num(num) {}
+    bool wait_for_response;
+    BaseModule(ModuleID id, uint8_t num) : module_id(id), module_num(num), wait_for_response(false) {}
+public:
+    void SetWaitForResponse(bool s) { wait_for_response = s; }
+    bool GetWaitForResponse() { return wait_for_response; }
 };
 
 class EncoderModule : public BaseModule {
