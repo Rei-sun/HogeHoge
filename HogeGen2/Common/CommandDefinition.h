@@ -1,7 +1,7 @@
 #pragma once
 
 namespace HogeGen2 {
-    enum class CMD_MotorControlModule {
+    enum class CMD_MotorModule {
         Invalid,
         OK,
         SetAllDuty
