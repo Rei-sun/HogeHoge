@@ -105,10 +105,10 @@ namespace HogeGen2 {
                 if (cmd == (uint8_t)CMD_EncoderModule::GetLocalization) {
                     auto pose_array = (float*)data;
                     module->SetPose(1, pose_array[0]);
-                    module->SetPose(2, pose_array[0]);
-                    module->SetPose(3, pose_array[0]);
-                    module->SetPose(4, pose_array[0]);
-                    module->SetPose(5, pose_array[0]);
+                    module->SetPose(2, pose_array[1]);
+                    module->SetPose(3, pose_array[2]);
+                    module->SetPose(4, pose_array[3]);
+                    module->SetPose(5, pose_array[4]);
                 } else if (cmd == (uint8_t)CMD_EncoderModule::GetAllPulse) {
                     auto pulse_array = (short*)data;
                     for (int i = 0; i < 4; i++) {
@@ -119,6 +119,12 @@ namespace HogeGen2 {
                 }
 
             } else if (module_id == (uint8_t)ModuleID::SensorModule) {
+                
+                printf("%x, %x, %x, %x, %d : ", module_id, cmd, module_num, dev_id, length);
+                for (int i = 0; i < length; i++) {
+                    printf("%x, ", ((uint8_t*)data)[i]);
+                }
+                printf("\n");
                 
                 // Check Device ID
                 if (ModuleManager::IsNotValidModuleNumber<SensorModule>(module_num)) return;
