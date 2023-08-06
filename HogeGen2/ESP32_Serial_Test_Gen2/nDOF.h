@@ -6,7 +6,7 @@
 #include <utility/imumaths.h>
 
 class nDOF {
-protected:
+public:
   virtual void Begin() = 0;
   virtual void Update() = 0;
   virtual float GetRoll() = 0;
@@ -15,12 +15,12 @@ protected:
 };
 
 class BNO055 : public nDOF {
-  Adafruit_BNO055 bno;
+  Adafruit_BNO055 &bno;
   bool BNO055Begin;
   float euler[3];
 public:
-  BNO055() : 
-    bno(-1, 0x28),
+  BNO055(Adafruit_BNO055 &_bno) : 
+    bno(_bno),
     BNO055Begin(false),
     euler{
       0.f,

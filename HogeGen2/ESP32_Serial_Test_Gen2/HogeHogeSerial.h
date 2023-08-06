@@ -67,6 +67,9 @@ public:
     tx_data[2] = mod_n;
     tx_data[3] = dev_n;
     tx_data[4] = length;
+    for (int i = 0; i < length; i++) {
+      tx_data[5 + i] = ((uint8_t*)data)[i];
+    }
     tx_data[tx_size - 1] = CheckSum(tx_data, tx_size - 1);
     Serial.write(tx_data, tx_size);
   }
@@ -88,7 +91,7 @@ public:
       }
     } else if (cmd == (uint8_t)CMD_EncoderModule::GetAllPulse) {
       short value_array[] = { ModuleManager::GetEncoderModules()[mod_n-1]->GetPulse(1), ModuleManager::GetEncoderModules()[mod_n-1]->GetPulse(2), ModuleManager::GetEncoderModules()[mod_n-1]->GetPulse(3), ModuleManager::GetEncoderModules()[mod_n-1]->GetPulse(4) };
-      Response((uint8_t)ModuleID::EncoderModule, cmd, mod_n, dev_n, sizeof(float) * 4, value_array);
+      Response((uint8_t)ModuleID::EncoderModule, cmd, mod_n, dev_n, sizeof(short) * 4, value_array);
     } else {
       Response((uint8_t)ModuleID::EncoderModule, (uint8_t)CMD_EncoderModule::Invalid, mod_n, dev_n, 0, nullptr);
     }
@@ -103,7 +106,14 @@ public:
     // コマンド処理
     if (cmd == (uint8_t)CMD_SensorModule::GetSensorData) {
       uint8_t byte_array[13] = {0};
-      short value_array[] = { ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(1), ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(2), ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(3), ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(4), ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(5), ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(6) };
+      short value_array[] = { 
+        ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(1),
+        ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(2),
+        ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(3),
+        ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(4),
+        ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(5),
+        ModuleManager::GetSensorModules()[mod_n-1]->GetAnalog(6)
+      };
       byte_array[0] = ModuleManager::GetSensorModules()[mod_n-1]->GetDigitalArray()[0].all;
       for (int i = 0; i < 12; i++) {
         byte_array[1 + i] = ((uint8_t*)value_array)[i];

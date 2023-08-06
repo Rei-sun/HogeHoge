@@ -43,9 +43,11 @@ LEDOut led_out_1(output_pin_1);
 LEDOut led_out_2(output_pin_2);
 LEDOut led_out_3(output_pin_3);
 
-BNO055 bno055;
+Adafruit_BNO055 bno;
+bool BNO055Begin = false;
 
 HogeHogeSerial hogehoge;
+
 
 void IRAM_ATTR onTimer() {
   interrupt = true;
@@ -106,8 +108,9 @@ void setup() {
 
   StartIndicate();
   
-  bno055.Begin();
-
+  BNO055Begin = bno.begin();
+  delay(1000);
+  if (BNO055Begin) bno.setExtCrystalUse(true);
 
   //-----------------------------------
   // タイマー 設定
@@ -135,14 +138,19 @@ void loop() {
     ModuleManager::GetSensorModules()[0]->SetDigital(4, button_4.Read());
     ModuleManager::GetSensorModules()[0]->SetDigital(5, switch_1.Read());
 
-    ModuleManager::GetSensorModules()[0]->SetAnalog(0, potentio_1.Read());
+    ModuleManager::GetSensorModules()[0]->SetAnalog(1, potentio_1.Read());
 
-    bno055.Update();
+    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    if (BNO055Begin) {
+      euler[0] = euler.x();
+      euler[1] = euler.y();
+      euler[2] = euler.z();
+    }
     ModuleManager::GetEncoderModules()[0]->SetPose(1, 0.f);
     ModuleManager::GetEncoderModules()[0]->SetPose(2, 0.f);
-    ModuleManager::GetEncoderModules()[0]->SetPose(3, bno055.GetRoll());
-    ModuleManager::GetEncoderModules()[0]->SetPose(4, bno055.GetPitch());
-    ModuleManager::GetEncoderModules()[0]->SetPose(5, bno055.GetYaw());
+    ModuleManager::GetEncoderModules()[0]->SetPose(3, euler[1]);
+    ModuleManager::GetEncoderModules()[0]->SetPose(4, euler[2]);
+    ModuleManager::GetEncoderModules()[0]->SetPose(5, euler[0]);
 
     led_pwm_1.SetDuty(ModuleManager::GetMotorModules()[0]->GetDuty(1));
     led_pwm_2.SetDuty(ModuleManager::GetMotorModules()[0]->GetDuty(2));
@@ -152,8 +160,7 @@ void loop() {
     led_out_1.Write(ModuleManager::GetSolenoidModules()[0]->GetState(1));
     led_out_2.Write(ModuleManager::GetSolenoidModules()[0]->GetState(2));
     led_out_3.Write(ModuleManager::GetSolenoidModules()[0]->GetState(3));
-    //Serial.printf("%d, %d, %d, %d\n", sensorModule.switch_state.bits.switch_1, sensorModule.switch_state.bits.switch_2, sensorModule.switch_state.bits.switch_3, sensorModule.switch_state.bits.switch_4);
-
-    interrupt = false;
+    
+    interrupt = false; 
   }
 }
