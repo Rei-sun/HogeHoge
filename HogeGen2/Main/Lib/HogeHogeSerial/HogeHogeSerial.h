@@ -14,18 +14,18 @@ namespace HogeGen2 {
     /// @brief Serial communication for HogeHoge
     class HogeHogeSerial : public SerialCommunication {
         // Target device name
-        const std::string target_device_name;
+        std::string target_device_name;
 
         // void OnConnect();
         void OnReceive(void*, size_t);
 
-        /// @brief Constructer
-        HogeHogeSerial(){};
-
     public:
         /// @brief Constructer
-        /// @param device_name Device name (ex. /dev/ttyACM0)
-        HogeHogeSerial(std::string device_name);
+        HogeHogeSerial();
+
+        /// @brief Start serial communication
+        /// @param device_name  Device name (ex. /dev/ttyACM0)
+        void Start(std::string device_name);
 
         /// @brief Transmit command function
         /// @param module_id Module ID

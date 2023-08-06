@@ -8,6 +8,11 @@ void SerialCommunication::StartCommunicationThread() {
     } else {
         thread_continue = true;
         thread = std::shared_ptr<std::thread>(new std::thread(&SerialCommunication::CommunicationProcess, this));
+        // 最優先
+        struct sched_param param;
+        param.sched_priority = 99;
+        if (pthread_setschedparam(thread.get()->native_handle(), SCHED_RR, &param) != 0)
+            printf("Error Priority set\n");
     }
 }
 
@@ -27,17 +32,19 @@ void SerialCommunication::CommunicationProcess() {
     static const size_t read_buffer_size = 1024;
     // Read buffer
     uint8_t *read_buffer = new uint8_t[read_buffer_size];
+
+    auto thread_id = std::this_thread::get_id();
     
     fd_set rfds;
     struct timeval tv;
 
     // そういう問題ではなかった
-    // struct serial_struct serial_setting;
-    // ioctl(fd, TIOCGSERIAL, &serial_setting);
-    // serial_setting.flags |= ASYNC_LOW_LATENCY;
-    // ioctl(fd, TIOCSSERIAL, &serial_setting);
-    // int nread = 0;
-    // ioctl(fd, FIONREAD, &nread);
+    struct serial_struct serial_setting;
+    ioctl(fd, TIOCGSERIAL, &serial_setting);
+    serial_setting.flags |= ASYNC_LOW_LATENCY;
+    ioctl(fd, TIOCSSERIAL, &serial_setting);
+    int nread = 0;
+    ioctl(fd, FIONREAD, &nread);
 
     while(thread_continue){
         if (is_connected) {
@@ -90,8 +97,11 @@ void SerialCommunication::CommunicationProcess() {
 bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect = false) {
     std::lock_guard<std::mutex> lock(io_mutex);
 
+    this->device_name = device_name;
+
     // open
-    fd = open(device_name, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    //fd = open(device_name, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    fd = open(device_name, O_RDWR | O_NOCTTY);
     
     // check
     if(fd < 0) {
@@ -116,8 +126,8 @@ bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect
     // config_tio.c_oflag = 0;
     // config_tio.c_lflag = 0;
     
-    config_tio.c_cc[VMIN] = 0;
-    config_tio.c_cc[VTIME] = 0;
+    // config_tio.c_cc[VMIN] = 0;
+    // config_tio.c_cc[VTIME] = 0;
     
     // Flush
     tcflush(fd, TCIOFLUSH);
@@ -127,7 +137,6 @@ bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect
 
     transmit_failure_count = 0;
     is_connected = true;
-    this->device_name = device_name;
 
     printf("serial open.\n");
 

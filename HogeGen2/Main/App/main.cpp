@@ -9,6 +9,7 @@
 using namespace HogeGen2;
 
 int main(){
+    Hoge::Init();
     GUICommunication gcommu(20000);
     
     printf("pid = %d\n", getpid());
@@ -24,12 +25,17 @@ int main(){
 
     while (Hoge::Good()) {
         start = std::chrono::system_clock::now();
+
+        Hoge::GetSensorValue();
         
         // printf("delta time = %f\n", timer.GetDeltaTime());
+        ModuleManager::GetSolenoidModules()[0]->SetState(1, true);
+
+        Hoge::SetActuatorControl();
 
         end = std::chrono::system_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
-        // std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() << "]" << "processing time = " << elapsed << std::endl;
+        std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(end.time_since_epoch()).count() << "]" << "processing time = " << elapsed << std::endl;
 
         timer.Sleep();
     }

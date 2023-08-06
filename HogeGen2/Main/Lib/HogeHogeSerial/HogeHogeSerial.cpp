@@ -2,10 +2,13 @@
 
 using namespace HogeGen2;
 
-HogeHogeSerial::HogeHogeSerial(std::string device_name) :
+HogeHogeSerial::HogeHogeSerial() :
     SerialCommunication(),
-    target_device_name(device_name)
-{
+    target_device_name("")
+{}
+
+void HogeHogeSerial::Start(std::string device_name) {
+    target_device_name = device_name;
     Open(target_device_name, true);
 }
 

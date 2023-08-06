@@ -62,7 +62,7 @@ public:
   void Response(uint8_t mod_id, uint8_t cmd, uint8_t mod_n, uint8_t dev_n, uint8_t length, void* data) {
     uint8_t tx_size = 5 + length + 1;
     uint8_t tx_data[255 + 5 + 1] = { 0 };
-    tx_data[0] = mod_n;
+    tx_data[0] = mod_id;
     tx_data[1] = cmd;
     tx_data[2] = mod_n;
     tx_data[3] = dev_n;
@@ -82,7 +82,7 @@ public:
       // 場所、姿勢は module_id = 1 限定、それ以外は Invalid を返す。
       if (mod_n == 1) {
         float value_array[] = { ModuleManager::GetEncoderModules()[0]->GetPose(1), ModuleManager::GetEncoderModules()[0]->GetPose(2), ModuleManager::GetEncoderModules()[0]->GetPose(3), ModuleManager::GetEncoderModules()[0]->GetPose(4), ModuleManager::GetEncoderModules()[0]->GetPose(5) };
-        Response((uint8_t)ModuleID::EncoderModule, (uint8_t)CMD_EncoderModule::Invalid, mod_n, dev_n, sizeof(float) * 5, value_array);
+        Response((uint8_t)ModuleID::EncoderModule, cmd, mod_n, dev_n, sizeof(float) * 5, value_array);
       } else {
         Response((uint8_t)ModuleID::EncoderModule, (uint8_t)CMD_EncoderModule::Invalid, mod_n, dev_n, 0, nullptr);  
       }
@@ -115,7 +115,7 @@ public:
   }
 
   void ReceiveMotor(uint8_t cmd, uint8_t mod_n, uint8_t dev_n, uint8_t length, void* data) {
-    if (cmd == (uint8_t)CMD_MotorControlModule::SetAllDuty) {
+    if (cmd == (uint8_t)CMD_MotorModule::SetAllDuty) {
       float *duty_array = (float*)data;
       for(int i = 0; i < 6; i++)  ModuleManager::GetMotorModules()[mod_n-1]->SetDuty(i + 1, duty_array[i]);
     }

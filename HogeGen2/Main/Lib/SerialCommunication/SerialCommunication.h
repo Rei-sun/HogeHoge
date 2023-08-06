@@ -21,10 +21,12 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <functional>
+#include <pthread.h>
 #include <thread>
 #include <memory>
 #include <sys/ioctl.h>
 #include <mutex>
+#include <linux/serial.h>
 
 /**
  * @namespace HogeGen2
