@@ -4,11 +4,14 @@
 #include "CommandDefinition.h"
 #include "Module.h"
 #include "ModuleManager.h"
+#include "OutputComponent.h"
 #include "HardwareSerial.h"
 #include <vector>
 #include <stdint.h>
 
 using namespace HogeGen2;
+
+extern LEDOut led_out_3;
 
 class HogeHogeSerial {
   std::vector<uint8_t> buffer;
@@ -20,6 +23,7 @@ public:
   }
 
   void ReceiveByte(uint8_t data) {
+    led_out_3.Write(true);
     buffer.push_back(data);
 
     if (buffer.size() <= 5) return;
@@ -57,6 +61,7 @@ public:
     }
 
     buffer.clear();
+    led_out_3.Write(false);
   }
 
   void Response(uint8_t mod_id, uint8_t cmd, uint8_t mod_n, uint8_t dev_n, uint8_t length, void* data) {

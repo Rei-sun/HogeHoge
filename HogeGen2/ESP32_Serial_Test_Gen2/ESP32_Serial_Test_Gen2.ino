@@ -48,7 +48,6 @@ bool BNO055Begin = false;
 
 HogeHogeSerial hogehoge;
 
-
 void IRAM_ATTR onTimer() {
   interrupt = true;
 }
@@ -159,7 +158,7 @@ void loop() {
 
     led_out_1.Write(ModuleManager::GetSolenoidModules()[0]->GetState(1));
     led_out_2.Write(ModuleManager::GetSolenoidModules()[0]->GetState(2));
-    led_out_3.Write(ModuleManager::GetSolenoidModules()[0]->GetState(3));
+    //led_out_3.Write(ModuleManager::GetSolenoidModules()[0]->GetState(3));
     
     interrupt = false; 
   }
