@@ -45,13 +45,11 @@ int main(){
         ModuleManager::GetMotorModules()[0]->SetDuty(2, abs(duty_pitch));
         ModuleManager::GetMotorModules()[0]->SetDuty(3, duty_potentio);
 
-        ModuleManager::GetSolenoidModules()[0]->SetState(1, true);
-        ModuleManager::GetSolenoidModules()[0]->SetState(2, true);
-        ModuleManager::GetSolenoidModules()[0]->SetState(3, true);
+        ModuleManager::GetSolenoidModules()[0]->SetState(1, button1);
+        ModuleManager::GetSolenoidModules()[0]->SetState(2, button2);
+        ModuleManager::GetSolenoidModules()[0]->SetState(3, button3);
 
         Hoge::SetActuatorControl();
-
-        printf("%d\n", ModuleManager::GetSensorModules()[0]->GetDigitalArray()[0].all);
 
         end = std::chrono::system_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();

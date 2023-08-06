@@ -88,6 +88,8 @@ namespace HogeGen2 {
         }
 
         static void ReceiveCommand(uint8_t module_id, uint8_t cmd, uint8_t module_num, uint8_t dev_id, uint8_t length, void *data) {
+            // printf("%x, %x, %x, %x\n", module_id, cmd, module_num, dev_id);
+            
             if (module_id == (uint8_t)ModuleID::MotorModule) {
                 
                 // nothing
@@ -119,12 +121,6 @@ namespace HogeGen2 {
                 }
 
             } else if (module_id == (uint8_t)ModuleID::SensorModule) {
-                
-                printf("%x, %x, %x, %x, %d : ", module_id, cmd, module_num, dev_id, length);
-                for (int i = 0; i < length; i++) {
-                    printf("%x, ", ((uint8_t*)data)[i]);
-                }
-                printf("\n");
                 
                 // Check Device ID
                 if (ModuleManager::IsNotValidModuleNumber<SensorModule>(module_num)) return;

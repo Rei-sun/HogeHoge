@@ -39,12 +39,12 @@ void SerialCommunication::CommunicationProcess() {
     struct timeval tv;
 
     // そういう問題ではなかった
-    struct serial_struct serial_setting;
-    ioctl(fd, TIOCGSERIAL, &serial_setting);
-    serial_setting.flags |= ASYNC_LOW_LATENCY;
-    ioctl(fd, TIOCSSERIAL, &serial_setting);
-    int nread = 0;
-    ioctl(fd, FIONREAD, &nread);
+    // struct serial_struct serial_setting;
+    // ioctl(fd, TIOCGSERIAL, &serial_setting);
+    // serial_setting.flags |= ASYNC_LOW_LATENCY;
+    // ioctl(fd, TIOCSSERIAL, &serial_setting);
+    // int nread = 0;
+    // ioctl(fd, FIONREAD, &nread);
 
     while(thread_continue){
         if (is_connected) {
