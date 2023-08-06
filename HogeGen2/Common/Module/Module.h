@@ -18,8 +18,9 @@ class BaseModule {
 protected:
     ModuleID module_id;
     uint8_t module_num;
-    bool wait_for_response;
     BaseModule(ModuleID id, uint8_t num) : module_id(id), module_num(num), wait_for_response(false) {}
+private:
+    bool wait_for_response;
 public:
     void SetWaitForResponse(bool s) { wait_for_response = s; }
     bool GetWaitForResponse() { return wait_for_response; }
@@ -61,7 +62,7 @@ public:
     SensorModule(uint8_t num) : BaseModule(ModuleID::SensorModule, num) { }
     bool GetDigital(uint8_t dev_id) { return digital_array[0].all >> (dev_id - 1) & 1; }
     short GetAnalog(uint8_t dev_id) { return analog_array[dev_id - 1]; }
-    void SetDigital(uint8_t dev_id, bool value) { digital_array[0].all ^= (value << (dev_id - 1)); }
+    void SetDigital(uint8_t dev_id, bool value) { if (value) digital_array[0].all |= (value << (dev_id - 1)); else digital_array[0].all &= ~(value << (dev_id - 1)); }
     void SetAnalog(uint8_t dev_id, short value) { analog_array[dev_id - 1] = value; }
     in_digital *GetDigitalArray() { return digital_array; }
     short *GetAnalogArray() { return analog_array; }
@@ -100,7 +101,7 @@ protected:
     in_state state_array[1];
 public:
     SolenoidModule(uint8_t num) : BaseModule(ModuleID::SolenoidModule, num) { }
-    void SetState(uint8_t device_id, bool state) { state_array[0].all ^= (state << (device_id - 1)); }
+    void SetState(uint8_t device_id, bool state) { if (state) state_array[0].all |= (state << (device_id - 1)); else state_array[0].all &= ~(state << (device_id - 1)); }
     bool GetState(uint8_t dev_id) { return state_array[0].all >> (dev_id - 1) & 1; }
     void SetAllState(uint8_t state) { state_array[0].all = state; }
     in_state *GetStateArray() { return state_array; }
