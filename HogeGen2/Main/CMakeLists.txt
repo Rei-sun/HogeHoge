@@ -12,5 +12,7 @@ set(COM_DIR ${HOGE_ROOT_DIR}/Common)
 set(APP_DIR ${PROJECT_SOURCE_DIR}/App)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/Lib)
 
+add_compile_options(-D HOGE_ROOT ${HOGE_ROOT_DIR})
+
 add_subdirectory(App)
 add_subdirectory(Lib)
