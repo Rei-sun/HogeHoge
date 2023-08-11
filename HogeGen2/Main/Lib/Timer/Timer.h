@@ -26,6 +26,9 @@ namespace HogeGen2 {
         // progress time for last loop [s]
         float delta_time;
 
+        // progress time for last loop process [s]
+        float process_time;
+
     public:
         /**
          * @brief Constructer
@@ -47,6 +50,14 @@ namespace HogeGen2 {
         }
 
         /**
+         * @brief Get Process time
+         * @return Process time [s]
+        */
+        float GetProcessTime() {
+            return process_time;
+        }
+
+        /**
          * @brief Set loop rate functino
          * @param hz frequency [Hz]
         */
@@ -60,7 +71,12 @@ namespace HogeGen2 {
          * @brief Sleep function
         */
         void Sleep() {
-            int elapsed = 0.f;
+            // Process elapsed time
+            end = std::chrono::system_clock::now();
+            process_time = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count() * 0.000001f;
+            int elapsed = 0;
+
+            // Sleep
             do {
                 end = std::chrono::system_clock::now();
                 elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count();
