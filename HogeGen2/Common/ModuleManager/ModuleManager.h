@@ -51,19 +51,19 @@ public:
     template<class T> static bool IsNotValidModuleNumber(uint8_t module_num);
 };
 
-template<> bool ModuleManager::IsNotValidModuleNumber<EncoderModule>(uint8_t module_num) {
+template<> inline bool ModuleManager::IsNotValidModuleNumber<EncoderModule>(uint8_t module_num) {
     return (encoderModules.size() < module_num);
 }
 
-template<> bool ModuleManager::IsNotValidModuleNumber<SensorModule>(uint8_t module_num) {
+template<> inline bool ModuleManager::IsNotValidModuleNumber<SensorModule>(uint8_t module_num) {
     return (sensorModules.size() < module_num);
 }
 
-template<> bool ModuleManager::IsNotValidModuleNumber<MotorModule>(uint8_t module_num) {
+template<> inline bool ModuleManager::IsNotValidModuleNumber<MotorModule>(uint8_t module_num) {
     return (motorModules.size() < module_num);
 }
 
-template<> bool ModuleManager::IsNotValidModuleNumber<SolenoidModule>(uint8_t module_num) {
+template<> inline bool ModuleManager::IsNotValidModuleNumber<SolenoidModule>(uint8_t module_num) {
     return (solenoidModules.size() < module_num);
 }
 

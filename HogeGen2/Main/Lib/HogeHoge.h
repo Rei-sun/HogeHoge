@@ -4,11 +4,15 @@
 #include <SerialCommunication.h>
 #include <HogeHogeSerial.h>
 #include <ModuleManager.h>
+#include <ModuleManagerMain.h>
 #include <CommandDefinition.h>
 #include <Timer.h>
 
 #include <unistd.h>
 #include <signal.h>
+#include <functional>
+#include <vector>
+#include <queue>
 
 namespace HogeGen2 {
     class Hoge {
@@ -88,62 +92,21 @@ namespace HogeGen2 {
         }
 
         static void ReceiveCommand(uint8_t module_id, uint8_t cmd, uint8_t module_num, uint8_t dev_id, uint8_t length, void *data) {
-            // printf("%x, %x, %x, %x\n", module_id, cmd, module_num, dev_id);
+            //printf("%x, %x, %x, %x\n", module_id, cmd, module_num, dev_id);
             
-            if (module_id == (uint8_t)ModuleID::MotorModule) {
+            if (module_id == (uint8_t)ModuleID::EncoderModule) {
+
+                // Check Module number
+                if (ModuleManagerMain::encoderModules.size() < module_num) return;
                 
-                // nothing
-
-            } else if (module_id == (uint8_t)ModuleID::EncoderModule) {
-
-                // Check Device ID
-                if (ModuleManager::IsNotValidModuleNumber<EncoderModule>(module_num)) return;
-                auto module = ModuleManager::GetEncoderModules()[module_num - 1];
-
-                // WaitForResponse Flag Set
-                module->SetWaitForResponse(false);
-
-                // Conditional split for each command.
-                if (cmd == (uint8_t)CMD_EncoderModule::GetLocalization) {
-                    auto pose_array = (float*)data;
-                    module->SetPose(1, pose_array[0]);
-                    module->SetPose(2, pose_array[1]);
-                    module->SetPose(3, pose_array[2]);
-                    module->SetPose(4, pose_array[3]);
-                    module->SetPose(5, pose_array[4]);
-                } else if (cmd == (uint8_t)CMD_EncoderModule::GetAllPulse) {
-                    auto pulse_array = (short*)data;
-                    for (int i = 0; i < 4; i++) {
-                        module->SetPulse(i + 1, pulse_array[i]);
-                    }
-                } else {
-                    // printf("undefined command\n");
-                }
+                ModuleManagerMain::encoderModules[module_num - 1]->ReceiveCommand(cmd, dev_id, length, data);
 
             } else if (module_id == (uint8_t)ModuleID::SensorModule) {
                 
-                // Check Device ID
-                if (ModuleManager::IsNotValidModuleNumber<SensorModule>(module_num)) return;
-                auto module = ModuleManager::GetSensorModules()[module_num - 1];
-
-                // WaitForResponse Flag Set
-                module->SetWaitForResponse(false);
-            
-                // Conditional split for each command.
-                if (cmd == (uint8_t)CMD_SensorModule::GetSensorData) {
-                    auto uint8_data = (uint8_t*)data;
-                    auto short_array = (short*)((uint8_t*)data + 1);
-                    module->GetDigitalArray()[0].all = uint8_data[0];
-                    for (int i = 0; i < 4; i++) {
-                        module->SetAnalog(i + 1, short_array[i]);
-                    }
-                } else {
-                    // printf("undefined command\n");
-                }
-
-            } else if (module_id == (uint8_t)ModuleID::SolenoidModule) {
-
-                // nothing
+                // Check Module number
+                if (ModuleManagerMain::sensorModules.size() < module_num) return;
+                
+                ModuleManagerMain::sensorModules[module_num - 1]->ReceiveCommand(cmd, dev_id, length, data);
 
             } else {
 
@@ -217,10 +180,12 @@ namespace HogeGen2 {
         // temporary buffer
         inline static std::vector<uint8_t> tmp_buffer;
 
+        inline static std::vector<std::function<void()>> requestFunc;
+        inline static std::vector<std::function<void()>> batchFunc;
+
     public:
         // Instance for serial communication
         inline static HogeHogeSerial serial;
-
 
         /**
          * @brief Constructer
@@ -231,10 +196,15 @@ namespace HogeGen2 {
             auto new_prio = nice(-20);
             if (new_prio == -1) perror("nice");
             else printf("priolity = %d\n", new_prio);
-            ModuleManager::MakeEncoderModule(1);
-            ModuleManager::MakeSensorModule(1);
-            ModuleManager::MakeMotorModule(1);
-            ModuleManager::MakeSolenoidModule(1);
+            // ModuleManager::MakeEncoderModule(1);
+            // ModuleManager::MakeSensorModule(1);
+            // ModuleManager::MakeMotorModule(1);
+            // ModuleManager::MakeSolenoidModule(1);
+            ModuleManagerMain::SetModule<EncoderModuleMain>(1);
+            ModuleManagerMain::SetModule<MotorModuleMain>(1);
+            ModuleManagerMain::SetModule<SensorModuleMain>(1);
+            ModuleManagerMain::SetModule<SolenoidModuleMain>(1);
+            
             RegisterAbort();
             serial.RegisterCallbackOnConnect(OnConnect);
             serial.RegisterCallbackOnReceive(OnReceive);
@@ -269,6 +239,22 @@ namespace HogeGen2 {
             for (int i = 0; i < ModuleManager::GetSolenoidModules().size(); i++) {
                 SendSolenoidCommand(false, i + 1, (uint8_t)CMD_SolenoidModule::SetAllState, 0, sizeof(uint8_t) * 1, &ModuleManager::GetSolenoidModules()[i]->GetStateArray()->all);
             }
+        }
+
+        static void GetSensorValueEx() {
+            for (auto f : requestFunc) f();
+        }
+
+        static void SetActuatorControlEx() {
+            for (auto f : batchFunc) f();
+        }
+
+        static void RegisterRequestSensor(std::function<void ()> func) {
+            requestFunc.push_back(func);
+        }
+
+        static void RegisterBatchSender(std::function<void()> func) {
+            batchFunc.push_back(func);
         }
     };
 }

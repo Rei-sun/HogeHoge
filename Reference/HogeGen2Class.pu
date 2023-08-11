@@ -40,7 +40,6 @@ Common -[hidden]-> Main
 Common -[hidden]-> MicroController
 Common -[hidden]-> GUI
 
-
 BaseModule <|-- SolenoidModule
 BaseModule <|-- MotorModule
 BaseModule <|-- SensorModule
