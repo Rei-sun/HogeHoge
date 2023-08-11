@@ -139,6 +139,7 @@ namespace HogeGen2 {
         Hoge() {}
 
         static void Init() {
+            printf("pid = %d\n", getpid());
             auto new_prio = nice(-20);
             if (new_prio == -1) perror("nice");
             else printf("priolity = %d\n", new_prio);
