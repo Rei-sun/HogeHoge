@@ -1,0 +1,75 @@
+@startuml クラス図Ex
+
+package Common {
+    class BaseModule {}
+    class EncoderModule {}
+    class MotorModule {}
+    class SensorModule {}
+    class SolenoidModule {}
+    class ModuleManager {}
+}
+
+package Main {
+    class SerialCommunication {}
+    class HogeHogeSerial_A {}
+    class Hoge {}
+    class GUICommunication {}
+    class Server {}
+}
+
+package MicroController {
+    class HogeHogeSerial_B {}
+    class Sensor {}
+    class DigitalSensor {}
+    class AnalogSensor {}
+    class Button {}
+    class Switch {}
+    class Potentio {}
+    class Output {}
+    class LEDOut {}
+    class Solenoid {}
+    class PWMOut {}
+    class LEDPWM {}
+}
+
+package GUI {
+    class Client {}
+}
+
+Common -[hidden]-> Main
+Common -[hidden]-> MicroController
+Common -[hidden]-> GUI
+
+BaseModule <|-- SolenoidModule
+BaseModule <|-- MotorModule
+BaseModule <|-- SensorModule
+BaseModule <|-- EncoderModule
+EncoderModule --* ModuleManager
+SensorModule --* ModuleManager
+MotorModule --* ModuleManager
+SolenoidModule --* ModuleManager
+GUICommunication *-- Server
+
+Sensor <|-- DigitalSensor
+Sensor <|-- AnalogSensor
+DigitalSensor <|-- Button
+DigitalSensor <|-- Switch
+AnalogSensor <|-- Potentio
+Output <|-- LEDOut
+Output <|-- Solenoid
+PWMOut <|-- LEDPWM
+HogeHogeSerial_B -[hidden]- PWMOut
+HogeHogeSerial_B -[hidden]- Output
+HogeHogeSerial_B -[hidden]- Sensor
+
+ModuleManager --* HogeHogeSerial_B
+ModuleManager --* Hoge
+
+Hoge *-- HogeHogeSerial_A
+HogeHogeSerial_A --|> SerialCommunication
+
+
+
+
+
+@enduml

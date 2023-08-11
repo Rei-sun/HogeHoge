@@ -1,0 +1,6 @@
+{
+    "HogeGen2": {
+        "TargetDeviceName": "/dev/ESP32-WROOM-32E",
+        "UseGUI": false
+    }
+}

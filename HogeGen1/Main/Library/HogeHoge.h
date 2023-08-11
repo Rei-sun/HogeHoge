@@ -126,8 +126,8 @@ namespace HogeHoge {
     bool Hoge::condition = true;
 }
 
-// HogeHoge::HogeHogeSerial HogeHoge::Hoge::serial("/dev/ESP32-WROOM-32E");
-HogeHoge::HogeHogeSerial HogeHoge::Hoge::serial("/dev/ttyACM0");
+HogeHoge::HogeHogeSerial HogeHoge::Hoge::serial("/dev/ESP32-WROOM-32E");
+// HogeHoge::HogeHogeSerial HogeHoge::Hoge::serial("/dev/ttyACM0");
 HogeHoge::MotorControlModule HogeHoge::Hoge::motor_control_module_1(HogeHoge::Hoge::serial, 1);
 HogeHoge::EncoderModule HogeHoge::Hoge::encoder_module_1(HogeHoge::Hoge::serial, 1);
 HogeHoge::SensorModule HogeHoge::Hoge::sensor_module_1(HogeHoge::Hoge::serial, 1);
