@@ -39,7 +39,7 @@ public:
     uint8_t module_num = rx_buffer[2];
     uint8_t device_id = rx_buffer[3];
     uint8_t length = rx_buffer[4];
-    uint8_t cs = buffer[rx_idx - 1];
+    uint8_t cs = rx_buffer[rx_idx - 1];
 
     switch (module_id) {
       case (uint8_t)ModuleID::MotorModule:

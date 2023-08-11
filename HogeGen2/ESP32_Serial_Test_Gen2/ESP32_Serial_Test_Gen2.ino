@@ -143,17 +143,17 @@ void loop() {
 
     ModuleManager::GetSensorModules()[0]->SetAnalog(1, potentio_1.Read());
 
-    // imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-    // if (BNO055Begin) {
-    //   euler[0] = euler.x();
-    //   euler[1] = euler.y();
-    //   euler[2] = euler.z();
-    // }
+    imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    if (BNO055Begin) {
+      euler[0] = euler.x();
+      euler[1] = euler.y();
+      euler[2] = euler.z();
+    }
     ModuleManager::GetEncoderModules()[0]->SetPose(1, 0.f);
     ModuleManager::GetEncoderModules()[0]->SetPose(2, 0.f);
-    //ModuleManager::GetEncoderModules()[0]->SetPose(3, euler[1]);
-    //ModuleManager::GetEncoderModules()[0]->SetPose(4, euler[2]);
-    //ModuleManager::GetEncoderModules()[0]->SetPose(5, euler[0]);
+    ModuleManager::GetEncoderModules()[0]->SetPose(3, euler[1]);
+    ModuleManager::GetEncoderModules()[0]->SetPose(4, euler[2]);
+    ModuleManager::GetEncoderModules()[0]->SetPose(5, euler[0]);
 
     led_pwm_1.SetDuty(ModuleManager::GetMotorModules()[0]->GetDuty(1));
     led_pwm_2.SetDuty(ModuleManager::GetMotorModules()[0]->GetDuty(2));
