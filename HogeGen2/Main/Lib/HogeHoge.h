@@ -3,7 +3,6 @@
 
 #include <SerialCommunication.h>
 #include <HogeHogeSerial.h>
-#include <ModuleManager.h>
 #include <ModuleManagerMain.h>
 #include <CommandDefinition.h>
 #include <Timer.h>
@@ -115,62 +114,6 @@ namespace HogeGen2 {
             }
         }
 
-        static void SendEncoderCommand(bool response, uint8_t module_num, uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
-            if(!serial.IsConnect()) return;
-    
-            if (response) ModuleManager::GetEncoderModules()[module_num - 1]->SetWaitForResponse(true);
-    
-            serial.Send((uint8_t)ModuleID::EncoderModule, cmd, module_num, device_id, length, data);
-
-            if (!response) return;
-
-            while (ModuleManager::GetEncoderModules()[module_num - 1]->GetWaitForResponse() && Good()) {
-                continue;
-            }
-        }
-
-        static void SendSensorCommand(bool response, uint8_t module_num, uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
-            if(!serial.IsConnect()) return;
-    
-            if (response) ModuleManager::GetSensorModules()[module_num - 1]->SetWaitForResponse(true);
-    
-            serial.Send((uint8_t)ModuleID::SensorModule, cmd, module_num, device_id, length, data);
-
-            if (!response) return;
-
-            while (ModuleManager::GetSensorModules()[module_num - 1]->GetWaitForResponse() && Good()) {
-                continue;
-            }
-        }
-
-        static void SendMotorCommand(bool response, uint8_t module_num, uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
-            if(!serial.IsConnect()) return;
-    
-            if (response) ModuleManager::GetMotorModules()[module_num - 1]->SetWaitForResponse(true);
-    
-            serial.Send((uint8_t)ModuleID::MotorModule, cmd, module_num, device_id, length, data);
-
-            if (!response) return;
-
-            while (ModuleManager::GetSensorModules()[module_num - 1]->GetWaitForResponse() && Good()) {
-                continue;
-            }
-        }
-
-        static void SendSolenoidCommand(bool response, uint8_t module_num, uint8_t cmd, uint8_t device_id, uint8_t length, void* data) {
-            if(!serial.IsConnect()) return;
-    
-            if (response) ModuleManager::GetSolenoidModules()[module_num - 1]->SetWaitForResponse(true);
-    
-            serial.Send((uint8_t)ModuleID::SolenoidModule, cmd, module_num, device_id, length, data);
-
-            if (!response) return;
-
-            while (ModuleManager::GetSolenoidModules()[module_num - 1]->GetWaitForResponse() && Good()) {
-                continue;
-            }
-        }
-
         // Buffer of receive data from serial
         inline static std::queue<uint8_t> receive_data_buffer;
 
@@ -180,7 +123,10 @@ namespace HogeGen2 {
         // temporary buffer
         inline static std::vector<uint8_t> tmp_buffer;
 
+        // vector for sensor value request function 
         inline static std::vector<std::function<void()>> requestFunc;
+
+        // vector for set actuator control function
         inline static std::vector<std::function<void()>> batchFunc;
 
     public:
@@ -196,10 +142,6 @@ namespace HogeGen2 {
             auto new_prio = nice(-20);
             if (new_prio == -1) perror("nice");
             else printf("priolity = %d\n", new_prio);
-            // ModuleManager::MakeEncoderModule(1);
-            // ModuleManager::MakeSensorModule(1);
-            // ModuleManager::MakeMotorModule(1);
-            // ModuleManager::MakeSolenoidModule(1);
             ModuleManagerMain::SetModule<EncoderModuleMain>(1);
             ModuleManagerMain::SetModule<MotorModuleMain>(1);
             ModuleManagerMain::SetModule<SensorModuleMain>(1);
@@ -213,49 +155,22 @@ namespace HogeGen2 {
             condition = true;
         }
 
-        /**
-         * @brief Condition check function
-        */
-        static bool Good() {
-            return Hoge::condition;
-        }
+        /// @brief Condition check function
+        static bool Good() { return Hoge::condition; }
 
-        static void GetSensorValue() {
-            if (ModuleManager::GetEncoderModules().size() > 0) {
-                SendEncoderCommand(true, 1, (uint8_t)CMD_EncoderModule::GetLocalization, 0, 0, nullptr);
-            }
-            for (int i = 0; i < ModuleManager::GetEncoderModules().size(); i++) {
-                SendEncoderCommand(true, i + 1, (uint8_t)CMD_EncoderModule::GetAllPulse, 0, 0, nullptr);
-            }
-            for (int i = 0; i < ModuleManager::GetSensorModules().size(); i++) {
-                SendSensorCommand(true, i + 1, (uint8_t)CMD_SensorModule::GetSensorData, 0, 0, nullptr);
-            }
-        }
+        /// @brief To request sensor value
+        static void GetSensorValue() { for (auto f : requestFunc) f(); }
 
-        static void SetActuatorControl() {
-            for (int i = 0; i < ModuleManager::GetMotorModules().size(); i++) {
-                SendMotorCommand(false, i + 1, (uint8_t)CMD_MotorModule::SetAllDuty, 0, sizeof(float) * 6, ModuleManager::GetMotorModules()[i]->GetDutyArray());
-            }
-            for (int i = 0; i < ModuleManager::GetSolenoidModules().size(); i++) {
-                SendSolenoidCommand(false, i + 1, (uint8_t)CMD_SolenoidModule::SetAllState, 0, sizeof(uint8_t) * 1, &ModuleManager::GetSolenoidModules()[i]->GetStateArray()->all);
-            }
-        }
+        /// @brief To set actuator contol
+        static void SetActuatorControl() { for (auto f : batchFunc) f(); }
 
-        static void GetSensorValueEx() {
-            for (auto f : requestFunc) f();
-        }
+        /// @brief register request function
+        /// @param func 
+        static void RegisterRequestSensor(std::function<void ()> func) { requestFunc.push_back(func); }
 
-        static void SetActuatorControlEx() {
-            for (auto f : batchFunc) f();
-        }
-
-        static void RegisterRequestSensor(std::function<void ()> func) {
-            requestFunc.push_back(func);
-        }
-
-        static void RegisterBatchSender(std::function<void()> func) {
-            batchFunc.push_back(func);
-        }
+        /// @brief register set actuator function
+        /// @param func 
+        static void RegisterBatchSender(std::function<void()> func) { batchFunc.push_back(func); }
     };
 }
 #endif
