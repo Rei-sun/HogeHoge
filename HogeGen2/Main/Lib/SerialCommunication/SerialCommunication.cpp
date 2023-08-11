@@ -1,4 +1,5 @@
 #include "SerialCommunication.h"
+#include <ConfigFileLoader.h>
 
 using namespace HogeGen2;
 
@@ -118,7 +119,7 @@ bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect
     // Configure
     cfmakeraw(&config_tio);
     
-    speed_t BAUDRATE = B2000000;
+    speed_t BAUDRATE = BaudRateConverter(ConfigFileLoader::config.baudrate);
     cfsetispeed(&config_tio, BAUDRATE);
     cfsetospeed(&config_tio, BAUDRATE);
 
@@ -169,6 +170,27 @@ void SerialCommunication::CloseSerialPort(bool error = false) {
     }
 
 }   
+
+speed_t SerialCommunication::BaudRateConverter(unsigned int rate) {
+    if (rate <= 9600) return B9600;
+    if (rate <= 19200) return B19200;
+    if (rate <= 38400) return B38400;
+    if (rate <= 57600) return B57600;
+    if (rate <= 115200) return B115200;
+    if (rate <= 230400) return B230400;
+    if (rate <= 460800) return B460800;
+    if (rate <= 500000) return B500000;
+    if (rate <= 921600) return B921600;
+    if (rate <= 1000000) return B1000000;
+    if (rate <= 1152000) return B1152000;
+    if (rate <= 1500000) return B1500000;
+    if (rate <= 2000000) return B2000000;
+    if (rate <= 2500000) return B2500000;
+    if (rate <= 3000000) return B3000000;
+    if (rate <= 3500000) return B3500000;
+    if (rate <= 4000000) return B4000000;
+    return B4000000;
+}
 
 SerialCommunication::SerialCommunication():
     device_name(""),

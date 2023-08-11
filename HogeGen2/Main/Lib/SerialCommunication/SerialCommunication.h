@@ -118,6 +118,11 @@ namespace HogeGen2 {
         */
         void CloseSerialPort(bool error);
 
+        /// @brief uint to speed_t
+        /// @param rata 9600bps ~ 4Mbps
+        /// @return speed_t
+        speed_t BaudRateConverter(unsigned int rata);
+
     public:
         /**
          * @brief Constructer
