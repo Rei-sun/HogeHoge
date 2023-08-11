@@ -1,10 +1,13 @@
 #include <Application.h>
 #include <HogeHoge.h>
 
+#include <ConfigFileLoader.h>
+
 using namespace HogeGen2;
 
 int main(){
     Hoge::Init();
+    ConfigFileLoader con;
 
     //-----------------------------
     // Setup Start
@@ -17,7 +20,7 @@ int main(){
     //-----------------------------
 
     Timer timer;
-    timer.SetHz(100);
+    timer.SetHz(1);
 
     while (Hoge::Good()) {
 
@@ -36,7 +39,7 @@ int main(){
         // Set actuator control
         Hoge::SetActuatorControl();
 
-        printf("%f\n", timer.GetProcessTime());
+        //printf("%f\n", timer.GetProcessTime());
 
         // Sleep for loop
         timer.Sleep();

@@ -6,6 +6,7 @@
 #include <ModuleManagerMain.h>
 #include <CommandDefinition.h>
 #include <Timer.h>
+#include <ConfigFileLoader.h>
 
 #include <unistd.h>
 #include <signal.h>
@@ -143,6 +144,13 @@ namespace HogeGen2 {
             auto new_prio = nice(-20);
             if (new_prio == -1) perror("nice");
             else printf("priolity = %d\n", new_prio);
+
+            ConfigFileLoader::LoadConfig();
+            if (!ConfigFileLoader::IsConfigLoaded()) {
+                printf("Config file load failed: %s\n", ConfigFileLoader::config_filename.c_str());
+                return;
+            }
+
             ModuleManagerMain::SetModule<EncoderModuleMain>(1);
             ModuleManagerMain::SetModule<MotorModuleMain>(1);
             ModuleManagerMain::SetModule<SensorModuleMain>(1);
@@ -152,7 +160,7 @@ namespace HogeGen2 {
             serial.RegisterCallbackOnConnect(OnConnect);
             serial.RegisterCallbackOnReceive(OnReceive);
             serial.RegisterCallbackOnReconnect(OnReconnect);
-            serial.Start("/dev/ESP32-WROOM-32E");
+            serial.Start(ConfigFileLoader::config.target_device_name);
             condition = true;
         }
 

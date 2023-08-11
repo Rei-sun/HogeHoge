@@ -12,6 +12,7 @@ add_library( ${PROJECT_NAME} SHARED
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
     ${COM_DIR}/
+    ${COM_DIR}/nlohmann/
     ${COM_DIR}/Module/
     ${COM_DIR}/ModuleManager/
     ${LIB_DIR}/
@@ -23,4 +24,5 @@ target_include_directories( ${PROJECT_NAME} PUBLIC
     ${LIB_DIR}/Modules/
     ${LIB_DIR}/ModuleManagerMain/
     ${LIB_DIR}/Interface/
+    ${LIB_DIR}/ConfigFileLoader/
 )
