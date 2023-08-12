@@ -1,3 +1,6 @@
+# HogeHoge
+GUIの描画にQt5を使用。
+
 ## ビルド
 HogeGen1のMainをビルド/実行する場合
 
