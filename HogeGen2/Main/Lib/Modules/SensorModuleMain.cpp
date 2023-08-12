@@ -29,7 +29,7 @@ void SensorModuleMain::SendCommand(uint8_t cmd) {
     if (!Hoge::serial.IsConnect()) return;
     SetWaitForResponse(true);
     Hoge::serial.Send((uint8_t)module_id, cmd, module_num, 0, 0, nullptr);
-    while (GetWaitForResponse() && Hoge::Good()) {}
+    while (GetWaitForResponse() && Hoge::Good() && Hoge::serial.IsConnect()) {}
     SetWaitForResponse(false);
 }
 
