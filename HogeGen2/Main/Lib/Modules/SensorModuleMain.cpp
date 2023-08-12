@@ -32,3 +32,19 @@ void SensorModuleMain::SendCommand(uint8_t cmd) {
     while (GetWaitForResponse() && Hoge::Good()) {}
     SetWaitForResponse(false);
 }
+
+std::pair<uint8_t, std::shared_ptr<uint8_t[]>> SensorModuleMain::Serialized() {
+    uint8_t ba_size = sizeof(digital_array);
+    uint8_t sa_size = sizeof(analog_array);
+
+    if (serialized.get() == nullptr) {
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[2 + ba_size + sa_size]);
+    }
+
+    serialized.get()[0] = (uint8_t)module_id;
+    serialized.get()[1] = (uint8_t)module_num;
+    memcpy(serialized.get() + 2, digital_array, ba_size);
+    memcpy(serialized.get() + 2 + ba_size, analog_array, sa_size);
+
+    return std::make_pair(2 + ba_size + sa_size, serialized);
+}
