@@ -7,7 +7,7 @@
 namespace HogeGen2 {
 
 class IModuleSerializer {
-protected:
+public:
     virtual std::pair<uint8_t, std::shared_ptr<uint8_t[]>> Serialized() = 0;
 };
 

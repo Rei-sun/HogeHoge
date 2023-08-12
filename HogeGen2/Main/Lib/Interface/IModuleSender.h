@@ -5,7 +5,7 @@
 namespace HogeGen2 {
 
 class IModuleSender {
-protected:
+public:
     virtual void SendCommand(uint8_t cmd) = 0;
 };
 
