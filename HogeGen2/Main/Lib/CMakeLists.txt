@@ -15,9 +15,9 @@ target_include_directories( ${PROJECT_NAME} PUBLIC
     ${COM_DIR}/nlohmann/
     ${COM_DIR}/Module/
     ${COM_DIR}/ModuleManager/
+    ${COM_DIR}/Socket/
     ${LIB_DIR}/
     ${LIB_DIR}/IPCommunication/
-    ${LIB_DIR}/Socket/
     ${LIB_DIR}/Timer/
     ${LIB_DIR}/SerialCommunication/
     ${LIB_DIR}/HogeHogeSerial/

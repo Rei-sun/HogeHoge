@@ -21,6 +21,8 @@ class Server {
     inline static const int SRV_SEND_BUFF = 1024;
     inline static const int SRV_RECV_BUFF = 1024;
     
+    inline static bool continueFlag = false;
+    
     int server_fd;
     
     std::vector<int> client_fds;
@@ -34,7 +36,6 @@ class Server {
 
     char tx_buff[SRV_SEND_BUFF];
 
-    inline static bool continueFlag = false;
     
     pthread_t temp_thread;
 
