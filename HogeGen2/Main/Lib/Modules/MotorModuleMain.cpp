@@ -5,6 +5,8 @@ using namespace HogeGen2;
 
 MotorModuleMain::MotorModuleMain(uint8_t _module_num) : MotorModule(_module_num) {
     Hoge::RegisterBatchSender([&](){ SendCommand((uint8_t)CMD_MotorModule::SetAllDuty); });
+    Hoge::RegisterIPSerialize(module_name, static_cast<IModuleSerializer*>(this));
+    Hoge::RegisterIPControl(module_name, static_cast<IModuleController*>(this));
 }
 
 void MotorModuleMain::SendCommand(uint8_t cmd) {
@@ -25,4 +27,8 @@ std::pair<uint8_t, std::shared_ptr<uint8_t[]>> MotorModuleMain::Serialized() {
     memcpy(serialized.get() + 2, duty_array, fa_size);
 
     return std::make_pair(2 + fa_size, serialized);
+}
+
+void MotorModuleMain::Control(uint8_t id, float value) {
+    SetDuty(id, value);
 }

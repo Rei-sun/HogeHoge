@@ -5,6 +5,7 @@ using namespace HogeGen2;
 
 SensorModuleMain::SensorModuleMain(uint8_t _module_num) : SensorModule(_module_num) {
     Hoge::RegisterRequestSensor([&](){ SendCommand((uint8_t)CMD_SensorModule::GetSensorData); });
+    Hoge::RegisterIPSerialize(module_name, this);
 }
 
 void SensorModuleMain::ReceiveCommand(uint8_t cmd, uint8_t dev_id, uint8_t length, void *data) {

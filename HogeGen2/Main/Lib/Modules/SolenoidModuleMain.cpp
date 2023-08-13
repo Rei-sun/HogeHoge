@@ -5,6 +5,8 @@ using namespace HogeGen2;
 
 SolenoidModuleMain::SolenoidModuleMain(uint8_t _module_num) : SolenoidModule(_module_num) {
     Hoge::RegisterBatchSender([&](){ SendCommand((uint8_t)CMD_SolenoidModule::SetAllState); });
+    Hoge::RegisterIPSerialize(module_name, static_cast<IModuleSerializer*>(this));
+    Hoge::RegisterIPControl(module_name, static_cast<IModuleController*>(this));
 }
 
 void SolenoidModuleMain::SendCommand(uint8_t cmd) {
@@ -25,4 +27,8 @@ std::pair<uint8_t, std::shared_ptr<uint8_t[]>> SolenoidModuleMain::Serialized() 
     memcpy(serialized.get() + 2, state_array, ba_size);
 
     return std::make_pair(2 + ba_size, serialized);
+}
+
+void SolenoidModuleMain::Control(uint8_t id, float value) {
+    SetState(id, value == 0 ? false : true);
 }

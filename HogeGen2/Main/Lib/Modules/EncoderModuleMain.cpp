@@ -8,6 +8,7 @@ EncoderModuleMain::EncoderModuleMain(uint8_t _module_num) : EncoderModule(_modul
         Hoge::RegisterRequestSensor([&](){ SendCommand((uint8_t)CMD_EncoderModule::GetLocalization); });
     }
     Hoge::RegisterRequestSensor([&](){ SendCommand((uint8_t)CMD_EncoderModule::GetAllPulse); });
+    Hoge::RegisterIPSerialize(module_name, this);
 }
 
 void EncoderModuleMain::ReceiveCommand(uint8_t cmd, uint8_t dev_id, uint8_t length, void *data) {
