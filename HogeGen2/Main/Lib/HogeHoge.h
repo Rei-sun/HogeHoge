@@ -20,17 +20,13 @@ namespace HogeGen2 {
         // condition
         inline static bool condition = false;
 
-        /**
-         * @brief Abort handler
-        */
+        /// @brief Abort handler
         static void abort_handler(int sig) {
             Hoge::condition = false;
             printf("Keyboard interrupted.\n");
         }
 
-        /**
-         * @brief Regist Abort handler function
-        */
+        /// @brief Regist Abort handler function
         static void RegisterAbort() {
             signal(SIGINT, Hoge::abort_handler);
         }
@@ -137,11 +133,6 @@ namespace HogeGen2 {
         // Instance for serial communication
         inline static HogeHogeSerial serial;
 
-        /**
-         * @brief Constructer
-        */
-        Hoge() {}
-
         static void Init() {
             printf("pid = %d\n", getpid());
             auto new_prio = nice(-20);
@@ -160,10 +151,14 @@ namespace HogeGen2 {
             ModuleManagerMain::SetModule<SolenoidModuleMain>(1);
             
             RegisterAbort();
+            
             serial.RegisterCallbackOnConnect(OnConnect);
             serial.RegisterCallbackOnReceive(OnReceive);
             serial.RegisterCallbackOnReconnect(OnReconnect);
             serial.Start(ConfigFileLoader::config.target_device_name);
+
+            ip_communication.Start(ConfigFileLoader::config.gui_server_port);
+
             condition = true;
         }
 
