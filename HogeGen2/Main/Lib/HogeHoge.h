@@ -2,6 +2,7 @@
 #define _H_HOGEHOGE_
 
 #include <SerialCommunication.h>
+#include <IPCommunication.h>
 #include <HogeHogeSerial.h>
 #include <ModuleManagerMain.h>
 #include <CommandDefinition.h>
@@ -130,6 +131,8 @@ namespace HogeGen2 {
         // vector for set actuator control function
         inline static std::vector<std::function<void()>> batchFunc;
 
+        inline static IPCommunication ip_communication = IPCommunication();
+
     public:
         // Instance for serial communication
         inline static HogeHogeSerial serial;
@@ -180,6 +183,16 @@ namespace HogeGen2 {
         /// @brief register set actuator function
         /// @param func 
         static void RegisterBatchSender(std::function<void()> func) { batchFunc.push_back(func); }
+
+        /// @brief register IModuleSerializer for IP
+        /// @param key key
+        /// @param p IModuleSerializer pointer
+        static void RegisterIPSerialize(std::string key, IModuleSerializer* p) { IPCommunication::RegisterModuleSerialize(key, p); }
+
+        /// @brief register IModuleController for IP
+        /// @param key key
+        /// @param p IModuleController pointer
+        static void RegisterIPControl(std::string key, IModuleController* p) { IPCommunication::RegisterModuleControl(key, p); }
     };
 }
 #endif
