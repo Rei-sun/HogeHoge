@@ -13,13 +13,6 @@
 
 class MainWindow : public QWidget {
 public:
-    std::string pose_str[5];
-    std::string pulse_str[4];
-    std::string analog_str[6];
-    std::string digital_str[6];
-    std::string duty_str[6];
-    std::string solenoid_str[8];
-
     QGroupBox *encoderGroup;
     QVBoxLayout *vpose;
     ValueWithLabel<float>* pose_values[5];
@@ -42,54 +35,7 @@ public:
     ValueWithLabel<short>* solenoid_values[8];
 
     QVBoxLayout *vBox;
-    MainWindow() : 
-        pose_str {
-            "Position X",
-            "Position Y",
-            "Roll",
-            "Pitch",
-            "Yaw" 
-        },
-        pulse_str {
-            "Pulse 1",
-            "Pulse 2",
-            "Pulse 3",
-            "Pulse 4"
-        },
-        analog_str {
-            "Analog 1",
-            "Analog 2",
-            "Analog 3",
-            "Analog 4",
-            "Analog 5",
-            "Analog 6",
-        },
-        digital_str {
-            "Digital 1",
-            "Digital 2",
-            "Digital 3",
-            "Digital 4",
-            "Digital 5",
-            "Digital 6"
-        },
-        duty_str {
-            "Duty 1",
-            "Duty 2",
-            "Duty 3",
-            "Duty 4",
-            "Duty 5",
-            "Duty 6",
-        },
-        solenoid_str {
-            "Solenoid 1",
-            "Solenoid 2",
-            "Solenoid 3",
-            "Solenoid 4",
-            "Solenoid 5",
-            "Solenoid 6",
-            "Solenoid 7",
-            "Solenoid 8"
-        }
+    MainWindow()
     {
         encoderGroup = new QGroupBox("Pose", this);
         vpose = new QVBoxLayout;
@@ -149,5 +95,7 @@ public:
         vBox->addWidget(motorGroup);
         vBox->addWidget(solenoidGroup);
         this->setLayout(vBox);
+
+        this->setFixedSize(800, 800);
     }
 };

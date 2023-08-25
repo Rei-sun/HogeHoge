@@ -7,7 +7,6 @@ add_executable( ${PROJECT_NAME}
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
     ${LIB_DIR}/
-    ${LIB_DIR}/Socket/
     ${LIB_DIR}/Module/
     ${LIB_DIR}/DeviceValue/
     ${APP_DIR}/

@@ -1,13 +1,13 @@
 #pragma once 
 
-#include <EncoderModuleMain.h>
-#include <MotorModuleMain.h>
-#include <SensorModuleMain.h>
-#include <SolenoidModuleMain.h>
+#include <EncoderModuleGUI.h>
+#include <MotorModuleGUI.h>
+#include <SensorModuleGUI.h>
+#include <SolenoidModuleGUI.h>
 
 namespace HogeGen2 {
 
-class ModuleManagerMain {
+class ModuleManagerGUI {
     template<typename T> static std::vector<T*> MakeModule(int generate_count) {
         std::vector<T*> v;
         for (int i = 0; i < generate_count; i++) {
@@ -16,10 +16,10 @@ class ModuleManagerMain {
         return v;
     }
 public:
-    inline static std::vector<EncoderModuleMain*> encoderModules;
-    inline static std::vector<SensorModuleMain*> sensorModules;
-    inline static std::vector<MotorModuleMain*> motorModules;
-    inline static std::vector<SolenoidModuleMain*> solenoidModules;
+    inline static std::vector<EncoderModuleGUI*> encoderModules;
+    inline static std::vector<SensorModuleGUI*> sensorModules;
+    inline static std::vector<MotorModuleGUI*> motorModules;
+    inline static std::vector<SolenoidModuleGUI*> solenoidModules;
 
     template<typename T> static void SetModule(int count);
 };
