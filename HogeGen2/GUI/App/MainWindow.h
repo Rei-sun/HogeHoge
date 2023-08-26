@@ -103,9 +103,6 @@ public:
         // サイズ変更
         resize(700,500);
 
-        auto sub = new SubWindow(this);
-        sub->show();
-
         // 表示する
         show();
     }

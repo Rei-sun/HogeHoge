@@ -2,7 +2,6 @@
 #include <QTimer>
 
 #include <MainWindow.h>
-#include <SettingData.h>
 
 int count = 0;
 

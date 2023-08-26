@@ -1,15 +1,13 @@
 #include <EncoderModuleGUI.h>
-
+#include <IPCommunicationSub.h>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QLineEdit>
 
-#include <iostream>
-
 using namespace HogeGen2;
 
 EncoderModuleGUI::EncoderModuleGUI(uint8_t _module_num) : EncoderModule(_module_num) {
-
+    IPCommunicationSub::RegisterModuleHoge(module_id, module_num, this);
 }
 
 void EncoderModuleGUI::Deserialize(uint8_t* data, int size) {

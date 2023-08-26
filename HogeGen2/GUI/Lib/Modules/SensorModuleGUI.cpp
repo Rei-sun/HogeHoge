@@ -1,5 +1,5 @@
 #include <SensorModuleGUI.h>
-
+#include <IPCommunicationSub.h>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -7,7 +7,7 @@
 using namespace HogeGen2;
 
 SensorModuleGUI::SensorModuleGUI(uint8_t _module_num) : SensorModule(_module_num) {
-
+    IPCommunicationSub::RegisterModuleHoge(module_id, module_num, this);
 }
 
 void SensorModuleGUI::Deserialize(uint8_t* data, int size) {

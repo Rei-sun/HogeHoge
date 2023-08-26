@@ -22,6 +22,7 @@ class IPCommunicationSub {
         deserializer_reference[(ModuleID)module_id][module_num - 1]->Deserialize((uint8_t *)module_data, size - 2);
     }
 
+public:
     static void RegisterModuleHoge(ModuleID module_id, uint8_t module_num, IModuleDeserializer *deserializer) {
         // if the key has no matching value, add one.
         auto it = deserializer_reference.find(module_id);
