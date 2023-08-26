@@ -23,7 +23,7 @@ target_include_directories( ${PROJECT_NAME} PUBLIC
     ${LIB_DIR}/IPCommunicationSub/
     ${LIB_DIR}/ModuleManagerGUI/
     ${LIB_DIR}/Modules/
-    ${LIB_DIR}/SettingData/
+    ${LIB_DIR}/SubWindow/
 )
 
 target_link_libraries( ${PROJECT_NAME}

@@ -10,7 +10,7 @@ target_include_directories( ${PROJECT_NAME} PUBLIC
     ${LIB_DIR}/DeviceValue/
     ${LIB_DIR}/Interface/
     ${LIB_DIR}/Modules/
-    ${LIB_DIR}/SettingData/
+    ${LIB_DIR}/SubWindow/
     ${APP_DIR}/
 )
 

@@ -11,8 +11,6 @@ int main(int argc, char *argv[]) {
     
     MainWindow main_window;
 
-
-
     // QTimer aTimer;
     // aTimer.setInterval(20);
     
