@@ -6,7 +6,7 @@ namespace HogeGen2 {
 
 class IGroupBox {
 public:
-    virtual QGroupBox *GetGroupBox();
+    virtual QGroupBox *GetGroupBox() = 0;
 };
 
 }

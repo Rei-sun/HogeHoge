@@ -1,19 +1,17 @@
 #include <QApplication>
 #include <QTimer>
 
-#include <Client.h>
-#include <Module.h>
-#include <ModuleManager.h>
-
-#include <DeviceValue.h>
-
 #include <MainWindow.h>
+#include <SettingData.h>
 
 int count = 0;
 
 int main(int argc, char *argv[]) {
-    // QApplication app(argc, argv);
-    // MainWindow *widget = new MainWindow;
+    QApplication app(argc, argv);
+    
+    MainWindow main_window;
+
+
 
     // QTimer aTimer;
     // aTimer.setInterval(20);
@@ -25,10 +23,8 @@ int main(int argc, char *argv[]) {
     //     }
     // );
     // aTimer.start();
- 
-    // widget->show();
 
     // client.Close();
 
-    //return app.exec();
+    return app.exec();
 }

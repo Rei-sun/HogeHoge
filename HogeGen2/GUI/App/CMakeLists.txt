@@ -7,8 +7,10 @@ add_executable( ${PROJECT_NAME}
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
     ${LIB_DIR}/
-    ${LIB_DIR}/Module/
     ${LIB_DIR}/DeviceValue/
+    ${LIB_DIR}/Interface/
+    ${LIB_DIR}/Modules/
+    ${LIB_DIR}/SettingData/
     ${APP_DIR}/
 )
 

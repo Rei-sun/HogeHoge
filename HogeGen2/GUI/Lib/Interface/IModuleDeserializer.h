@@ -6,7 +6,7 @@ namespace HogeGen2 {
 
 class IModuleDeserializer {
 public:
-    virtual void Deserialize(uint8_t* data, int size);
+    virtual void Deserialize(uint8_t* data, int size) = 0;
 };
 
 }

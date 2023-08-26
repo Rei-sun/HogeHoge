@@ -12,12 +12,18 @@ add_library( ${PROJECT_NAME} STATIC
 )
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
+    ${COM_DIR}/
+    ${COM_DIR}/nlohmann/
+    ${COM_DIR}/Module/
+    ${COM_DIR}/ModuleManager/
+    ${COM_DIR}/Socket/
     ${LIB_DIR}/
     ${LIB_DIR}/DeviceValue/
     ${LIB_DIR}/Interface/
     ${LIB_DIR}/IPCommunicationSub/
     ${LIB_DIR}/ModuleManagerGUI/
     ${LIB_DIR}/Modules/
+    ${LIB_DIR}/SettingData/
 )
 
 target_link_libraries( ${PROJECT_NAME}
