@@ -16,7 +16,7 @@ void SolenoidModuleMain::SendCommand(uint8_t cmd) {
 }
 
 std::pair<uint8_t, std::shared_ptr<uint8_t[]>> SolenoidModuleMain::Serialized() {
-    uint8_t ba_size = sizeof(state_array);
+    uint8_t ba_size = sizeof(state_array[0].all);
 
     if (serialized.get() == nullptr) {
         serialized = std::shared_ptr<uint8_t[]>(new uint8_t[3 + ba_size]);

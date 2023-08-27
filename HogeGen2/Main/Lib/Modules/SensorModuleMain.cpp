@@ -35,7 +35,7 @@ void SensorModuleMain::SendCommand(uint8_t cmd) {
 }
 
 std::pair<uint8_t, std::shared_ptr<uint8_t[]>> SensorModuleMain::Serialized() {
-    uint8_t ba_size = sizeof(digital_array);
+    uint8_t ba_size = sizeof(digital_array[0].all);
     uint8_t sa_size = sizeof(analog_array);
 
     if (serialized.get() == nullptr) {
