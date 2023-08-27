@@ -78,6 +78,19 @@ class MainWindow : public QMainWindow {
         std::vector<IGroupBox*> igroup_boxs(std::begin(modules), std::end(modules));
         return CreateGroupBox(str, igroup_boxs);
     }
+
+    void SetTimer() {
+        QTimer Timer;
+        Timer.setInterval(20);
+        
+        QObject::connect(&Timer, &QTimer::timeout,
+            [&]()
+            {
+                //ValueWithLabel<float>::UpdateAll();
+            }
+        );
+        Timer.start();
+    }
 public:
     MainWindow():
         QMainWindow()
