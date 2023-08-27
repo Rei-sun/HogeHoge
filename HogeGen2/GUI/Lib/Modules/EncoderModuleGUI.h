@@ -3,6 +3,7 @@
 #include <Module.h>
 #include <IModuleDeserializer.h>
 #include <IGroupBox.h>
+#include <QLineEdit>
 
 namespace HogeGen2 {
 

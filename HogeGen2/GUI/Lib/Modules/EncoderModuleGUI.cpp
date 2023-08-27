@@ -2,7 +2,6 @@
 #include <IPCommunicationSub.h>
 #include <QLabel>
 #include <QHBoxLayout>
-#include <QLineEdit>
 
 using namespace HogeGen2;
 
