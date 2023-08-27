@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SubWindow.h>
-
+#include <IPCommunicationSub.h>
 #include <ModuleManagerGUI.h>
 
 #include <QMainWindow>
@@ -17,12 +17,17 @@
 #include <QTextStream>
 
 #include <iostream>
+#include <future>
 
 using namespace HogeGen2;
 
 class MainWindow : public QMainWindow {
+    static inline IPCommunicationSub ip_communication;
+    
     int port;
     int mode;   // 0: OFFLINE, 1:ONLINE
+    QTimer Timer;
+
     QScrollArea *CreateBaseScrollArea() {
         // ScrollArea で表示する Widget 作成
         // レイアウト作成
@@ -80,24 +85,32 @@ class MainWindow : public QMainWindow {
     }
 
     void SetTimer() {
-        QTimer Timer;
         Timer.setInterval(20);
         
         QObject::connect(&Timer, &QTimer::timeout,
             [&]()
             {
-                //ValueWithLabel<float>::UpdateAll();
+                // TODO: 非同期処理
+                std::future<void> fut1 = std::async(std::launch::async, TimerUpdate);
+                
             }
         );
+    }
+    void TimerStart() {
         Timer.start();
+    }
+    void TimerStop() {
+        Timer.stop();
     }
 public:
     MainWindow():
-        QMainWindow()
+        QMainWindow(),
+        mode(0),
+        port(20000)
     {
         auto arguments = QCoreApplication::arguments();
         CommandLineAnalyze(arguments.count(), arguments);
-        
+
         // セントラルとなるウィジェットを生成
         QWidget *central = new QWidget(this);
         // ウィジェットにセットする VBOX レイアウトを生成
@@ -118,28 +131,33 @@ public:
 
         // 表示する
         show();
+
+        SetTimer();
+        TimerStart();
+
+        ip_communication.Start("127.0.0.1", port);
     }
 
     void Setup() {
-        if (mode != 0) return;
+        // if (mode != 0) return;
 
-        ModuleManagerGUI::SetModule<EncoderModuleGUI>(3);
+        ModuleManagerGUI::SetModule<EncoderModuleGUI>(1);
         auto encoder_module_group = CreateModuleGroupBox("Encoder Module", ModuleManagerGUI::encoderModules);
         centralWidget()->layout()->addWidget(encoder_module_group);
 
-        ModuleManagerGUI::SetModule<SensorModuleGUI>(3);
+        ModuleManagerGUI::SetModule<SensorModuleGUI>(1);
         auto sensor_module_group = CreateModuleGroupBox("Sensor Module", ModuleManagerGUI::sensorModules);
         centralWidget()->layout()->addWidget(sensor_module_group);
 
-        ModuleManagerGUI::SetModule<MotorModuleGUI>(3);
+        ModuleManagerGUI::SetModule<MotorModuleGUI>(1);
         auto motor_module_group = CreateModuleGroupBox("Motor Module", ModuleManagerGUI::motorModules);
         centralWidget()->layout()->addWidget(motor_module_group);
         
-        ModuleManagerGUI::SetModule<SolenoidModuleGUI>(3);
+        ModuleManagerGUI::SetModule<SolenoidModuleGUI>(1);
         auto solenoid_module_group = CreateModuleGroupBox("Solenoid Module", ModuleManagerGUI::solenoidModules);
         centralWidget()->layout()->addWidget(solenoid_module_group);
 
-        QTextStream(stdout) << "Setup";
+        QTextStream(stdout) << "Setup\n";
 
     }
 
@@ -219,5 +237,27 @@ public:
             parser.showHelp(argerr);
         }
         return(true);
+    }
+
+    static void TimerUpdate() {
+        static int cnt = 0;
+        cnt++;
+        if(cnt > 50) {
+            std::cout << "UpdateTimer\n";
+            cnt = 0;
+        }
+
+        for (auto module : ModuleManagerGUI::encoderModules) {
+            ip_communication.SendHoge(*module);
+        }
+        for (auto module : ModuleManagerGUI::sensorModules) {
+            ip_communication.SendHoge(*module);
+        }
+        for (auto module : ModuleManagerGUI::motorModules) {
+            ip_communication.SendHoge(*module);
+        }
+        for (auto module : ModuleManagerGUI::solenoidModules) {
+            ip_communication.SendHoge(*module);
+        }
     }
 };

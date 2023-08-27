@@ -18,7 +18,7 @@ void SolenoidModuleGUI::Deserialize(uint8_t* data, int size) {
 
 void SolenoidModuleGUI::WidgetUpdate() {
     for (int i = 0; i < (int)line_edits.size(); i++) {
-        line_edits[i]->setText(QString::fromStdString(std::to_string(GetState(i+1))));
+        line_edits[i]->setText(QString::fromStdString(GetState(i+1) ? "1" : "0"));
     }
 }
 
@@ -46,7 +46,10 @@ QGroupBox *SolenoidModuleGUI::GetGroupBox() {
         auto line_edit = new QLineEdit();
         line_edit->setReadOnly(true);
         line_edit->setFixedSize(20,18);
+        line_edit->setAlignment(Qt::AlignRight);
+        line_edit->setText("0");
         layout_hbox->addWidget(line_edit);
+        line_edits.push_back(line_edit);
     }
 
     // 操作用パネル呼び出しボタン

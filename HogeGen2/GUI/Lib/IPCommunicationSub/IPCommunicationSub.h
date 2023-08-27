@@ -11,16 +11,45 @@ class IPCommunicationSub {
     
     static inline std::map<ModuleID, std::vector<IModuleDeserializer*>> deserializer_reference;
 
-    static void Receive(Client* cp, char* data, int size) {
-        if (size < 3) return;
-        auto module_id = data[0];
-        auto module_num = data[1];
-        auto module_data = data + 2;
+    static void Receive(Client* cp, uint8_t* data, int size) {
+        static uint8_t buffer[512]; // 過剰なバッファー
+        static int buffer_idx = 0;
 
-        auto it = deserializer_reference.find((ModuleID)module_id);
-        if (it !=  deserializer_reference.end()) return;
-        
-        deserializer_reference[(ModuleID)module_id][module_num - 1]->Deserialize((uint8_t *)module_data, size - 2);
+        for (int i = 0; i < size; i++) {
+            buffer[buffer_idx++] = data[i];
+        }
+
+        while (1) {
+            if (buffer_idx <= 3) return;
+
+            auto data_size = buffer[2] + 3;
+
+            if (buffer_idx <= data_size) return;
+
+            // バッファから取り出す
+            uint8_t *msg = new uint8_t[data_size];
+            for (int i = 0; i < data_size; i++) {
+                msg[i] = buffer[i];
+            }
+
+            auto module_id = msg[0];
+            auto module_num = msg[1];
+            auto module_data_size = msg[2];
+            auto module_data = msg + 3;
+
+            auto it = deserializer_reference.find((ModuleID)module_id);
+            if (it ==  deserializer_reference.end()) return;
+            
+            deserializer_reference[(ModuleID)module_id][module_num - 1]->Deserialize((uint8_t *)module_data, module_data_size);
+
+            // バッファを詰める & index reset
+            for (int i = 0; i < buffer_idx - data_size; i++) {
+                uint8_t val = buffer[data_size + i];
+                buffer[data_size + i] = 0;
+                buffer[i] = val;
+            }
+            buffer_idx = buffer_idx - data_size;
+        }
     }
 
 public:
@@ -32,13 +61,12 @@ public:
         deserializer_reference[module_id].push_back(deserializer);
     }
 
-    IPCommunicationSub(const char* host, int port):
+    IPCommunicationSub():
         client()
-    {
-        client.Init(host, port);
-    }
+    {}
 
-    void Start() {
+    void Start(const char* host, int port) {
+        client.Init(host, port);
         client.Connect(Receive);
     }
 

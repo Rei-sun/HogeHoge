@@ -3,6 +3,8 @@
 #include <QLabel>
 #include <QHBoxLayout>
 
+#include <iostream>
+
 using namespace HogeGen2;
 
 EncoderModuleGUI::EncoderModuleGUI(uint8_t _module_num) : EncoderModule(_module_num) {

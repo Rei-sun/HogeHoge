@@ -10,8 +10,6 @@ SensorModuleGUI::SensorModuleGUI(uint8_t _module_num) : SensorModule(_module_num
 }
 
 void SensorModuleGUI::Deserialize(uint8_t* data, int size) {
-    uint8_t *ba = (uint8_t*)&data[2];
-    short *sa = (short*)&data[3];
     SetArrays(
         std::tuple<void*, void*, int>{digital_array, &data[0], sizeof(uint8_t) * 1},
         std::tuple<void*, void*, int>{analog_array, &data[1], sizeof(short) * 6}
@@ -21,10 +19,10 @@ void SensorModuleGUI::Deserialize(uint8_t* data, int size) {
 
 void SensorModuleGUI::WidgetUpdate() {
     for (int i = 0; i < (int)line_edits.size(); i++) {
-        line_edits[i]->setText(QString::fromStdString(std::to_string(GetDigital(i))));
+        line_edits[i]->setText(QString::fromStdString(std::to_string(GetDigital(i+1))));
     }
     for (int i = 0; i < (int)line_edits_ex.size(); i++) {
-        line_edits_ex[i]->setText(QString::fromStdString(std::to_string(GetAnalog(i))));
+        line_edits_ex[i]->setText(QString::fromStdString(std::to_string(GetAnalog(i+1))));
     }
 }
 

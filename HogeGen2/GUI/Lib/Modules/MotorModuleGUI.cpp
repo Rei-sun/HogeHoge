@@ -3,6 +3,8 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <sstream>
+#include <iomanip>
 
 using namespace HogeGen2;
 
@@ -19,7 +21,9 @@ void MotorModuleGUI::Deserialize(uint8_t* data, int size) {
 
 void MotorModuleGUI::WidgetUpdate() {
     for (int i = 0; i < (int)line_edits.size(); i++) {
-        line_edits[i]->setText(QString::fromStdString(std::to_string(GetDuty(i+1))));
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(2) << GetDuty(i+1);
+        line_edits[i]->setText(QString::fromStdString(ss.str()));
     }
 }
 
@@ -49,6 +53,7 @@ QGroupBox *MotorModuleGUI::GetGroupBox() {
         line_edit->setText("100.00");
         line_edit->setAlignment(Qt::AlignRight);
         layout_hbox->addWidget(line_edit);
+        line_edits.push_back(line_edit);
     }
 
     // 操作用パネル呼び出しボタン
