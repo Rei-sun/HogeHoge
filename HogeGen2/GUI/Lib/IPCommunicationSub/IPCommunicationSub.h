@@ -2,6 +2,7 @@
 #include <Module.h>
 #include <IModuleDeserializer.h>
 #include <map>
+#include <sstream>
 
 namespace HogeGen2 {
 
@@ -39,6 +40,22 @@ public:
 
     void Start() {
         client.Connect(Receive);
+    }
+
+    void SendHoge(BaseModule &module) {
+        auto cmd_str = std::string("Hoge");
+        auto module_str = module.GetModuleName();
+        uint8_t num_str = module.GetModuleNum();
+        client.SendStr("%s %s %d", cmd_str.c_str(), module_str.c_str(), num_str);
+    }
+
+    void SendFoo(BaseModule &module, uint8_t _device_num, float _value) {
+        auto cmd_str = std::string("Foo");
+        auto module_str = module.GetModuleName();
+        uint8_t module_num = module.GetModuleNum();
+        uint8_t device_num = _device_num;
+        float value = _value;
+        client.SendStr("%s %s %d %d %f", cmd_str.c_str(), module_str.c_str(), module_num, device_num, value);
     }
 }; 
 
