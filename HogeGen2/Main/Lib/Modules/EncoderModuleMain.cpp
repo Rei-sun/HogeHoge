@@ -47,13 +47,14 @@ std::pair<uint8_t, std::shared_ptr<uint8_t[]>> EncoderModuleMain::Serialized() {
     uint8_t fa_size = sizeof(pose_array);
 
     if (serialized.get() == nullptr) {
-        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[2 + sa_size + fa_size]);
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[3 + sa_size + fa_size]);
     }
 
     serialized.get()[0] = (uint8_t)module_id;
     serialized.get()[1] = (uint8_t)module_num;
-    memcpy(serialized.get() + 2, pulse_array, sa_size);
-    memcpy(serialized.get() + 2 + sa_size, pose_array, fa_size);
+    serialized.get()[2] = (uint8_t)(sa_size + fa_size);
+    memcpy(serialized.get() + 3, pulse_array, sa_size);
+    memcpy(serialized.get() + 3 + sa_size, pose_array, fa_size);
 
-    return std::make_pair(2 + sa_size + fa_size, serialized);
+    return std::make_pair(3 + sa_size + fa_size, serialized);
 }

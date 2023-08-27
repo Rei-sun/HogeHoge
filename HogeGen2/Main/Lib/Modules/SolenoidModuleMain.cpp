@@ -19,14 +19,15 @@ std::pair<uint8_t, std::shared_ptr<uint8_t[]>> SolenoidModuleMain::Serialized() 
     uint8_t ba_size = sizeof(state_array);
 
     if (serialized.get() == nullptr) {
-        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[2 + ba_size]);
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[3 + ba_size]);
     }
 
     serialized.get()[0] = (uint8_t)module_id;
     serialized.get()[1] = (uint8_t)module_num;
-    memcpy(serialized.get() + 2, state_array, ba_size);
+    serialized.get()[2] = (uint8_t)ba_size;
+    memcpy(serialized.get() + 3, state_array, ba_size);
 
-    return std::make_pair(2 + ba_size, serialized);
+    return std::make_pair(3 + ba_size, serialized);
 }
 
 void SolenoidModuleMain::Control(uint8_t id, float value) {

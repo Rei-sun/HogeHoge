@@ -19,14 +19,15 @@ std::pair<uint8_t, std::shared_ptr<uint8_t[]>> MotorModuleMain::Serialized() {
     uint8_t fa_size = sizeof(duty_array);
 
     if (serialized.get() == nullptr) {
-        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[2 + fa_size]);
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[3 + fa_size]);
     }
 
     serialized.get()[0] = (uint8_t)module_id;
     serialized.get()[1] = (uint8_t)module_num;
-    memcpy(serialized.get() + 2, duty_array, fa_size);
+    serialized.get()[2] = (uint8_t)fa_size;
+    memcpy(serialized.get() + 3, duty_array, fa_size);
 
-    return std::make_pair(2 + fa_size, serialized);
+    return std::make_pair(3 + fa_size, serialized);
 }
 
 void MotorModuleMain::Control(uint8_t id, float value) {
