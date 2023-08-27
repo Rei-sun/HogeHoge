@@ -12,10 +12,16 @@ MotorModuleGUI::MotorModuleGUI(uint8_t _module_num) : MotorModule(_module_num) {
 }
 
 void MotorModuleGUI::Deserialize(uint8_t* data, int size) {
-    float *fa = (float*)&data[2];
     SetArrays(
-        std::tuple<void*, void*, int>{duty_array, &data[2], sizeof(float) * 6}
+        std::tuple<void*, void*, int>{duty_array, &data[0], sizeof(float) * 6}
     );
+    WidgetUpdate();
+}
+
+void MotorModuleGUI::WidgetUpdate() {
+    for (int i = 0; i < (int)line_edits.size(); i++) {
+        line_edits[i]->setText(QString::fromStdString(std::to_string(GetDuty(i+1))));
+    }
 }
 
 QGroupBox *MotorModuleGUI::GetGroupBox() {
@@ -30,7 +36,8 @@ QGroupBox *MotorModuleGUI::GetGroupBox() {
     label->setFixedSize(100, 15);
     layout_hbox->addWidget(label);
 
-    for (int i = 0; i < 6; i++) {
+    auto count_value = sizeof(duty_array) / sizeof(float);
+    for (int i = 0; i < count_value; i++) {
         // 数値ラベル
         auto value_label = new QLabel(std::to_string(i+1).c_str());
         value_label->setAlignment(Qt::AlignCenter);

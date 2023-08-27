@@ -14,9 +14,14 @@ class SensorModuleGUI : public SensorModule, public IModuleDeserializer, public 
     static inline std::vector<std::string> category_digital_text = {
         "Digital"
     };
+
+    std::vector<QLineEdit*> line_edits;
+    std::vector<QLineEdit*> line_edits_ex;
+
 public:
     SensorModuleGUI(uint8_t _module_num);
     void Deserialize(uint8_t* data, int size);
+    void WidgetUpdate();
     QGroupBox *GetGroupBox();
 };
 

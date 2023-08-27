@@ -14,9 +14,19 @@ void SensorModuleGUI::Deserialize(uint8_t* data, int size) {
     uint8_t *ba = (uint8_t*)&data[2];
     short *sa = (short*)&data[3];
     SetArrays(
-        std::tuple<void*, void*, int>{digital_array, &data[2], sizeof(uint8_t) * 1},
-        std::tuple<void*, void*, int>{analog_array, &data[3], sizeof(short) * 6}
+        std::tuple<void*, void*, int>{digital_array, &data[0], sizeof(uint8_t) * 1},
+        std::tuple<void*, void*, int>{analog_array, &data[1], sizeof(short) * 6}
     );
+    WidgetUpdate();
+}
+
+void SensorModuleGUI::WidgetUpdate() {
+    for (int i = 0; i < (int)line_edits.size(); i++) {
+        line_edits[i]->setText(QString::fromStdString(std::to_string(GetDigital(i))));
+    }
+    for (int i = 0; i < (int)line_edits_ex.size(); i++) {
+        line_edits_ex[i]->setText(QString::fromStdString(std::to_string(GetAnalog(i))));
+    }
 }
 
 QGroupBox *SensorModuleGUI::GetGroupBox() {
@@ -35,7 +45,9 @@ QGroupBox *SensorModuleGUI::GetGroupBox() {
     label->setFixedSize(100, 15);
     layout_hbox->addWidget(label);
 
-    for (int i = 0; i < 6; i++) {
+    // 6 個分あるので、6 を指定
+    auto count_value = 6;
+    for (int i = 0; i < count_value; i++) {
         // 数値ラベル
         auto value_label = new QLabel(std::to_string(i+1).c_str());
         value_label->setAlignment(Qt::AlignRight);
@@ -48,6 +60,7 @@ QGroupBox *SensorModuleGUI::GetGroupBox() {
         line_edit->setText("0");
         line_edit->setAlignment(Qt::AlignRight);
         layout_hbox->addWidget(line_edit);
+        line_edits.push_back(line_edit);
     }
 
     // レイアウト設定Ex
@@ -61,7 +74,8 @@ QGroupBox *SensorModuleGUI::GetGroupBox() {
     label_ex->setFixedSize(100, 15);
     layout_hbox_ex->addWidget(label_ex);
 
-    for (int i = 0; i < 6; i++) {
+    auto count_value_ex = sizeof(analog_array) / sizeof(short);
+    for (int i = 0; i < count_value_ex; i++) {
         // 数値ラベルEx
         auto value_label = new QLabel(std::to_string(i+1).c_str());
         value_label->setAlignment(Qt::AlignCenter);
@@ -74,6 +88,7 @@ QGroupBox *SensorModuleGUI::GetGroupBox() {
         line_edit->setText("9999");
         line_edit->setAlignment(Qt::AlignRight);
         layout_hbox_ex->addWidget(line_edit);
+        line_edits_ex.push_back(line_edit);
     }
 
     layout_vbox_ex->addLayout(layout_hbox);

@@ -19,9 +19,12 @@ class EncoderModuleGUI : public EncoderModule, public IModuleDeserializer, publi
         "Pulse"
     };
 
+    std::vector<QLineEdit*> line_edits;
+
 public:
     EncoderModuleGUI(uint8_t _module_num);
     void Deserialize(uint8_t* data, int size);
+    void WidgetUpdate();
     QGroupBox *GetGroupBox();
 };
 

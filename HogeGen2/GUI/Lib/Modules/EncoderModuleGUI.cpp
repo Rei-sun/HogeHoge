@@ -12,9 +12,16 @@ EncoderModuleGUI::EncoderModuleGUI(uint8_t _module_num) : EncoderModule(_module_
 
 void EncoderModuleGUI::Deserialize(uint8_t* data, int size) {
     SetArrays(
-        std::tuple<void*, void*, int>{pulse_array, &data[2], sizeof(short) * 4},
-        std::tuple<void*, void*, int>{pose_array, &data[10], sizeof(float) * 5}
+        std::tuple<void*, void*, int>{pulse_array, &data[0], sizeof(short) * 4},
+        std::tuple<void*, void*, int>{pose_array, &data[8], sizeof(float) * 5}
     );
+    WidgetUpdate();
+}
+
+void EncoderModuleGUI::WidgetUpdate() {
+    for (int i = 0; i < (int)line_edits.size(); i++) {
+        line_edits[i]->setText(QString::fromStdString(std::to_string(GetPulse(i+1))));
+    }
 }
 
 QGroupBox *EncoderModuleGUI::GetGroupBox() {
@@ -29,7 +36,8 @@ QGroupBox *EncoderModuleGUI::GetGroupBox() {
     label->setFixedSize(100, 15);
     layout_hbox->addWidget(label);
 
-    for (int i = 0; i < 4; i++) {
+    auto count_value = sizeof(pulse_array) / sizeof(short);
+    for (int i = 0; i < count_value; i++) {
         // 数値ラベル
         auto value_label = new QLabel(std::to_string(i+1).c_str());
         value_label->setAlignment(Qt::AlignCenter);
@@ -42,6 +50,7 @@ QGroupBox *EncoderModuleGUI::GetGroupBox() {
         line_edit->setText("-99999");
         line_edit->setAlignment(Qt::AlignRight);
         layout_hbox->addWidget(line_edit);
+        line_edits.push_back(line_edit);
     }
 
     auto group = new QGroupBox();

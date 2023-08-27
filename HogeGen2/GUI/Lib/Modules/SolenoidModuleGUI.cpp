@@ -12,10 +12,15 @@ SolenoidModuleGUI::SolenoidModuleGUI(uint8_t _module_num) : SolenoidModule(_modu
 }
 
 void SolenoidModuleGUI::Deserialize(uint8_t* data, int size) {
-    uint8_t *ba = (uint8_t*)&data[2];
     SetArrays(
-        std::tuple<void*, void*, int>{state_array, &data[2], sizeof(uint8_t) * 1}
+        std::tuple<void*, void*, int>{state_array, &data[0], sizeof(uint8_t) * 1}
     );
+}
+
+void SolenoidModuleGUI::WidgetUpdate() {
+    for (int i = 0; i < (int)line_edits.size(); i++) {
+        line_edits[i]->setText(QString::fromStdString(std::to_string(GetState(i+1))));
+    }
 }
 
 QGroupBox *SolenoidModuleGUI::GetGroupBox() {
@@ -30,7 +35,9 @@ QGroupBox *SolenoidModuleGUI::GetGroupBox() {
     label->setFixedSize(100, 15);
     layout_hbox->addWidget(label);
 
-    for (int i = 0; i < 8; i++) {
+    // 8 個分あるので、8 を指定
+    auto count_value = 8;
+    for (int i = 0; i < count_value; i++) {
         // 数値ラベル
         auto value_label = new QLabel(std::to_string(i+1).c_str());
         value_label->setAlignment(Qt::AlignCenter);
