@@ -28,7 +28,7 @@ class Client {
     struct sockaddr_in server_addr;
     
     // void (*receive_proc)(Client*, char*, int);
-    std::function<void(Client*, char*, int)> receive_proc;
+    std::function<void(Client*, uint8_t*, int)> receive_proc;
     
     char tx_buff[SEND_BUFF];
     
@@ -58,7 +58,7 @@ public:
     /// @details ソケットのファイルディスクリプタに変更があるかどうかをselect関数を使用して判定、送信処理、受信処理を行う。呼ばないであげて
     static void* CommThread(void* p){
         Client* client = (Client*)p;    // サーバーのインスタンス
-        char buf[RECV_BUFF];            // 受信バッファ
+        uint8_t buf[RECV_BUFF];         // 受信バッファ
         int max_fd;                     // ディスクリプタの最大値
         fd_set  client_fds;             // 接続待ち、受信待ちをするディスクリプタの集合
         struct timeval  tv;             // タイムアウト時間
@@ -138,7 +138,7 @@ public:
     /// @param f 受信ハンドラ
     /// @return エラーナンバー
     /// @details 引数に受信したときの処理を行う関数ポインタを入れる。接続に成功したらスレッドを生成する。ブロッキング関数
-    int Connect(std::function<void(Client*, char*, int)> f = nullptr) {
+    int Connect(std::function<void(Client*, uint8_t*, int)> f = nullptr) {
         if(f_init) {
             if((connect(this->server_fd, (struct sockaddr *)&this->server_addr, sizeof(struct sockaddr_in))) < 0) {
                 perror("connect");
