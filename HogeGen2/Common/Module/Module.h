@@ -26,6 +26,9 @@ private:
 public:
     void SetWaitForResponse(bool s) { wait_for_response = s; }
     bool GetWaitForResponse() { return wait_for_response; }
+    ModuleID GetModuleID() { return module_id; }
+    uint8_t GetModuleNum() { return module_num; }
+    std::string GetModuleName() { return module_name; }
 };
 
 class EncoderModule : public BaseModule {
