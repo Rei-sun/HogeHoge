@@ -20,7 +20,7 @@ int main(){
     //-----------------------------
 
     Timer timer;
-    timer.SetHz(1);
+    timer.SetHz(100);
 
     while (Hoge::Good()) {
 
