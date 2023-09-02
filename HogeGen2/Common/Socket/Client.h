@@ -22,8 +22,6 @@ class Client {
     inline static bool continueFlag = false;
     
     int server_fd;
-
-    bool f_init;
     
     struct sockaddr_in server_addr;
     
@@ -33,6 +31,9 @@ class Client {
     char tx_buff[SEND_BUFF];
     
     pthread_t temp_thread;
+    
+    bool f_init;
+    bool f_connect;
 
     /// @brief 送信関数
     /// @param tx_data 送信バッファ
@@ -95,11 +96,6 @@ public:
                             client->receive_proc(client, buf, cnt);
                             memset(buf, 0, sizeof(buf));
                         }
-                    } else if (cnt == 0) {
-                        // 切断された場合、クローズする
-                        fprintf(stdout, "[Info]socket:%d  disconnected. \n", client->server_fd);
-                        close(client->server_fd);
-                        client->server_fd = -1;
                     } else {
                         goto end;
                     }
@@ -107,6 +103,9 @@ public:
             }
         }
         end:
+        fprintf(stdout, "[Info]socket:%d  disconnected. \n", client->server_fd);
+        close(client->server_fd);
+        client->server_fd = -1;
         return nullptr;
     }
 
@@ -190,5 +189,9 @@ public:
         continueFlag = false;
         pthread_join(temp_thread, nullptr);
         temp_thread = -1;
+    }
+
+    bool IsConnected() {
+        return continueFlag;
     }
 };
