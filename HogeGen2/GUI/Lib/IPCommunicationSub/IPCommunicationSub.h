@@ -67,12 +67,23 @@ public:
         client()
     {}
 
-    void Start(const char* host, int port) {
+    int Start(const char* host, int port) {
+        if(client.IsConnected()) return 0;
         client.Init(host, port);
-        client.Connect(Receive);
+        auto result = client.Connect(Receive);
+        return 0;
+    }
+
+    void Stop() {
+        client.Close();
+    }
+
+    bool IsConnected() {
+        return client.IsConnected();
     }
 
     void SendHoge(BaseModule &module) {
+        if(!client.IsConnected()) return;
         auto cmd_str = std::string("Hoge");
         auto module_str = module.GetModuleName();
         uint8_t num_str = module.GetModuleNum();
@@ -80,6 +91,7 @@ public:
     }
 
     void SendFoo(BaseModule &module, uint8_t _device_num, float _value) {
+        if(!client.IsConnected()) return;
         auto cmd_str = std::string("Foo");
         auto module_str = module.GetModuleName();
         uint8_t module_num = module.GetModuleNum();
