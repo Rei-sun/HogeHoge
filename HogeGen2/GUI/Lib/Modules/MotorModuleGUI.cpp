@@ -1,14 +1,14 @@
 #include <MotorModuleGUI.h>
-#include <IPCommunicationSub.h>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QObject>
 #include <sstream>
 #include <iomanip>
 
 using namespace HogeGen2;
 
-MotorModuleGUI::MotorModuleGUI(uint8_t _module_num) : MotorModule(_module_num) {
+MotorModuleGUI::MotorModuleGUI(uint8_t _module_num, IPCommunicationSub *ip_communication) : MotorModule(_module_num), control_window(this, ip_communication) {
     IPCommunicationSub::RegisterModuleHoge(module_id, module_num, this);
 }
 
@@ -59,10 +59,17 @@ QGroupBox *MotorModuleGUI::GetGroupBox() {
     // 操作用パネル呼び出しボタン
     auto control_button = new QPushButton("control");
     control_button->setFixedSize(50,20);
+    QObject::connect(control_button, &QPushButton::clicked, [=]() {
+           OnButtonClick();
+    });
     layout_hbox->addWidget(control_button);
 
     auto group = new QGroupBox();
     group->setLayout(layout_hbox);
     
     return group;
+}
+
+void MotorModuleGUI::OnButtonClick() {
+    control_window.show();
 }

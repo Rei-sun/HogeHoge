@@ -7,7 +7,7 @@
 
 using namespace HogeGen2;
 
-EncoderModuleGUI::EncoderModuleGUI(uint8_t _module_num) : EncoderModule(_module_num) {
+EncoderModuleGUI::EncoderModuleGUI(uint8_t _module_num, IPCommunicationSub *ip_communication) : EncoderModule(_module_num) {
     IPCommunicationSub::RegisterModuleHoge(module_id, module_num, this);
 }
 

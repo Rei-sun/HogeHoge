@@ -8,7 +8,7 @@ int count = 0;
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     
-    MainWindow main_window;
+    HogeGen2::MainWindow main_window;
 
     // client.Close();
 

@@ -5,7 +5,7 @@
 
 using namespace HogeGen2;
 
-SensorModuleGUI::SensorModuleGUI(uint8_t _module_num) : SensorModule(_module_num) {
+SensorModuleGUI::SensorModuleGUI(uint8_t _module_num, IPCommunicationSub *ip_communication) : SensorModule(_module_num) {
     IPCommunicationSub::RegisterModuleHoge(module_id, module_num, this);
 }
 

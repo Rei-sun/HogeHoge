@@ -1,5 +1,6 @@
 #pragma once
 
+#include <IPCommunicationSub.h>
 #include <Module.h>
 #include <IModuleDeserializer.h>
 #include <IGroupBox.h>
@@ -23,7 +24,7 @@ class EncoderModuleGUI : public EncoderModule, public IModuleDeserializer, publi
     std::vector<QLineEdit*> line_edits;
 
 public:
-    EncoderModuleGUI(uint8_t _module_num);
+    EncoderModuleGUI(uint8_t _module_num, IPCommunicationSub *ip_communication);
     void Deserialize(uint8_t* data, int size);
     void WidgetUpdate();
     QGroupBox *GetGroupBox();

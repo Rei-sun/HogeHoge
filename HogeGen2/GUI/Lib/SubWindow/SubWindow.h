@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ModuleManagerGUI.h>
-
 #include <QMainWindow>
 #include <QCoreApplication>
 #include <QLabel>
@@ -16,16 +14,15 @@
 
 #include <iostream>
 
-using namespace HogeGen2;
+namespace HogeGen2 {
 
 class SubWindow : public QWidget {
 public:
-    SubWindow(QWidget* parent):
-        QWidget(parent)
+    SubWindow():
+        QWidget()
     {
         setWindowFlags(Qt::Window);
-        setLayout(new QVBoxLayout());
-        layout()->addWidget(new QLabel("AAA"));
-        resize(100,100);
     }
 };
+
+}

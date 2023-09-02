@@ -1,12 +1,11 @@
 #include <SolenoidModuleGUI.h>
-#include <IPCommunicationSub.h>
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QPushButton>
 
 using namespace HogeGen2;
 
-SolenoidModuleGUI::SolenoidModuleGUI(uint8_t _module_num) : SolenoidModule(_module_num) {
+SolenoidModuleGUI::SolenoidModuleGUI(uint8_t _module_num, IPCommunicationSub *ip_communication) : SolenoidModule(_module_num), control_window(this, ip_communication) {
     IPCommunicationSub::RegisterModuleHoge(module_id, module_num, this);
 }
 
@@ -55,10 +54,17 @@ QGroupBox *SolenoidModuleGUI::GetGroupBox() {
     // 操作用パネル呼び出しボタン
     auto control_button = new QPushButton("control");
     control_button->setFixedSize(50,20);
+    QObject::connect(control_button, &QPushButton::clicked, [=]() {
+           OnButtonClick();
+    });
     layout_hbox->addWidget(control_button);
     
     auto group = new QGroupBox();
     group->setLayout(layout_hbox);
     
     return group;
+}
+
+void SolenoidModuleGUI::OnButtonClick() {
+    control_window.show();
 }
