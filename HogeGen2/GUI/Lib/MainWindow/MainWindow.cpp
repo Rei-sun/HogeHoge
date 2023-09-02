@@ -1,14 +1,11 @@
 #include "MainWindow.h"
 #include <IPCommunicationSub.h>
+#include <IGroupBox.h>
+#include <ModuleManagerGUI.h>
 #include <QMainWindow>
-// #include <QCoreApplication>
-// #include <QLabel>
 #include <QGroupBox>
-// #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QScrollArea>
-// #include <QLineEdit>
-// #include <QPushButton>
 #include <QCommandLineParser>
 #include <QTextStream>
 #include <QTimer>
@@ -19,8 +16,6 @@
 #include <ModuleManagerGUI.h>
 #include <iostream>
 #include <future>
-#include <IGroupBox.h>
-#include <ModuleManagerGUI.h>
 
 using namespace HogeGen2;
 
@@ -102,9 +97,7 @@ void MainWindow::TimerStop() {
 }
 
 MainWindow::MainWindow():
-    QMainWindow(),
-    mode(0),
-    port(20000)
+    QMainWindow()
 {
     auto arguments = QCoreApplication::arguments();
     CommandLineAnalyze(arguments.count(), arguments);
@@ -115,6 +108,24 @@ MainWindow::MainWindow():
     auto main_layout = new QVBoxLayout(central);
     // セントラルウィジェットに設定
     setCentralWidget(central);
+
+    // 操作用グループボックス
+    auto main_group_box = new QGroupBox();
+    centralWidget()->layout()->addWidget(main_group_box);
+    
+    auto main_group_layout = new QHBoxLayout(main_group_box);
+    main_group_layout->setContentsMargins(0,0,0,0);
+    main_group_layout->setAlignment(Qt::AlignRight);
+
+    connect_label  = new QLabel("Disconnected");
+    main_group_layout->addWidget(connect_label);
+
+    connect_button = new QPushButton("Connect");
+    main_group_layout->addWidget(connect_button);
+    connect_button->setFixedSize(80,30);
+    QObject::connect(connect_button, &QPushButton::clicked, [&]() {
+           ConnectButton_OnClicked();
+    });
 
     // 一時的
     Setup();
@@ -132,8 +143,6 @@ MainWindow::MainWindow():
 
     SetTimer();
     TimerStart();
-
-    ip_communication.Start("127.0.0.1", port);
 }
 
 void MainWindow::Setup() {
@@ -256,5 +265,21 @@ void MainWindow::TimerUpdate() {
     }
     for (auto module : ModuleManagerGUI::solenoidModules) {
         ip_communication.SendHoge(*module);
+    }
+}
+
+void MainWindow::ConnectButton_OnClicked() {
+    if (ip_communication.IsConnected()) {
+        ip_communication.Stop();
+    } else {
+        ip_communication.Start("127.0.0.1", port);
+    }
+    
+    if (ip_communication.IsConnected()) {
+        connect_label->setText("Connected");
+        connect_button->setText("Disconnect");
+    } else {
+        connect_label->setText("Disconnected");
+        connect_button->setText("Connect");
     }
 }

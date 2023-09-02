@@ -27,9 +27,11 @@
 namespace HogeGen2 {
 
     class MainWindow : public QMainWindow {
-        int port;
-        int mode;   // 0: OFFLINE, 1:ONLINE
+        static inline int port = 20000;
+        static inline int mode = 0;   // 0: OFFLINE, 1:ONLINE
         QTimer Timer;
+        QLabel *connect_label;
+        QPushButton *connect_button;
 
         QScrollArea *CreateBaseScrollArea();
         QGroupBox *CreateGroupBox(QString str, std::vector<IGroupBox*> modules);
@@ -43,6 +45,7 @@ namespace HogeGen2 {
         void Setup();
         bool CommandLineAnalyze(int argc, QStringList argv);
         static void TimerUpdate();
+        void ConnectButton_OnClicked();
     };
 
 }
