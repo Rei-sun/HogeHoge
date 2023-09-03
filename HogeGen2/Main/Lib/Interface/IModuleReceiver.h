@@ -5,7 +5,7 @@
 namespace HogeGen2 {
 
 class IModuleReceiver {
-protected:
+public:
     virtual void ReceiveCommand(uint8_t cmd, uint8_t dev_id, uint8_t length, void *data) = 0;
 };
 

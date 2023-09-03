@@ -8,6 +8,7 @@ EncoderModuleMain::EncoderModuleMain(uint8_t _module_num) : EncoderModule(_modul
         Hoge::RegisterRequestSensor([&](){ SendCommand((uint8_t)CMD_EncoderModule::GetLocalization); });
     }
     Hoge::RegisterRequestSensor([&](){ SendCommand((uint8_t)CMD_EncoderModule::GetAllPulse); });
+    Hoge::RegisterIPSerialize(module_name, this);
 }
 
 void EncoderModuleMain::ReceiveCommand(uint8_t cmd, uint8_t dev_id, uint8_t length, void *data) {
@@ -37,6 +38,23 @@ void EncoderModuleMain::SendCommand(uint8_t cmd) {
     if (!Hoge::serial.IsConnect()) return;
     SetWaitForResponse(true);
     Hoge::serial.Send((uint8_t)module_id, cmd, module_num, 0, 0, nullptr);
-    while (GetWaitForResponse() && Hoge::Good()) {}
+    while (GetWaitForResponse() && Hoge::Good() && Hoge::serial.IsConnect()) {}
     SetWaitForResponse(false);
+}
+
+std::pair<uint8_t, std::shared_ptr<uint8_t[]>> EncoderModuleMain::Serialized() {
+    uint8_t sa_size = sizeof(pulse_array);
+    uint8_t fa_size = sizeof(pose_array);
+
+    if (serialized.get() == nullptr) {
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[3 + sa_size + fa_size]);
+    }
+
+    serialized.get()[0] = (uint8_t)module_id;
+    serialized.get()[1] = (uint8_t)module_num;
+    serialized.get()[2] = (uint8_t)(sa_size + fa_size);
+    memcpy(serialized.get() + 3, pulse_array, sa_size);
+    memcpy(serialized.get() + 3 + sa_size, pose_array, fa_size);
+
+    return std::make_pair(3 + sa_size + fa_size, serialized);
 }

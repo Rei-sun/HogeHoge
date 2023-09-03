@@ -26,5 +26,10 @@ namespace HogeGen2 {
         SetAllState,
         SetState
     };
+
+    enum class IPCMD {
+        Undefined,
+        ModuleCount = 0xff
+    };
 }
 

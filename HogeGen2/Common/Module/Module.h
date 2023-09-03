@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Utility.h"
+#include <Utility.h>
 
 #include <stdint.h>
+#include <string>
 
 namespace HogeGen2{
 
@@ -18,12 +19,16 @@ class BaseModule {
 protected:
     ModuleID module_id;
     uint8_t module_num;
-    BaseModule(ModuleID id, uint8_t num) : module_id(id), module_num(num), wait_for_response(false) {}
+    std::string module_name;
+    BaseModule(ModuleID id, uint8_t num, std::string name) : module_id(id), module_num(num), module_name(name), wait_for_response(false) {}
 private:
     bool wait_for_response;
 public:
     void SetWaitForResponse(bool s) { wait_for_response = s; }
     bool GetWaitForResponse() { return wait_for_response; }
+    ModuleID GetModuleID() { return module_id; }
+    uint8_t GetModuleNum() { return module_num; }
+    std::string GetModuleName() { return module_name; }
 };
 
 class EncoderModule : public BaseModule {
@@ -31,7 +36,7 @@ protected:
     short pulse_array[4];
     float pose_array[5];
 public:
-    EncoderModule(uint8_t num) : BaseModule(ModuleID::EncoderModule, num) { }
+    EncoderModule(uint8_t num) : BaseModule(ModuleID::EncoderModule, num, "EncoderModule") { }
     short GetPulse(uint8_t dev_id) { return pulse_array[dev_id - 1]; }
     float GetPose(uint8_t dev_id) { return pose_array[dev_id - 1]; }
     void SetPulse(uint8_t dev_id, short value) { pulse_array[dev_id - 1] = value; }
@@ -59,7 +64,7 @@ protected:
     in_digital digital_array[1];
     short analog_array[6];
 public:
-    SensorModule(uint8_t num) : BaseModule(ModuleID::SensorModule, num) { }
+    SensorModule(uint8_t num) : BaseModule(ModuleID::SensorModule, num, "SensorModule") { }
     bool GetDigital(uint8_t dev_id) { return (digital_array[0].all >> (dev_id - 1)) & 1; }
     short GetAnalog(uint8_t dev_id) { return analog_array[dev_id - 1]; }
     void SetDigital(uint8_t dev_id, bool value) { if (value) digital_array[0].all |= (1 << (dev_id - 1)); else digital_array[0].all &= ~(1 << (dev_id - 1)); }
@@ -74,7 +79,7 @@ protected:
     const float limit_duty_min;
     const float limit_duty_max;
 public:
-    MotorModule(uint8_t num) : BaseModule(ModuleID::MotorModule, num), limit_duty_min(-100.f), limit_duty_max(100.f) { }
+    MotorModule(uint8_t num) : BaseModule(ModuleID::MotorModule, num, "MotorModule"), limit_duty_min(-100.f), limit_duty_max(100.f) { }
     void SetDuty(uint8_t dev_id, float duty) { duty_array[dev_id - 1] = Clamp(duty, limit_duty_min, limit_duty_max); }
     float GetDuty(uint8_t dev_id) { return duty_array[dev_id - 1]; }
     float *GetDutyArray() { return duty_array; }
@@ -100,7 +105,7 @@ protected:
 
     in_state state_array[1];
 public:
-    SolenoidModule(uint8_t num) : BaseModule(ModuleID::SolenoidModule, num) { }
+    SolenoidModule(uint8_t num) : BaseModule(ModuleID::SolenoidModule, num, "SolenoidModule") { }
     void SetState(uint8_t device_id, bool state) { if (state) state_array[0].all |= (1 << (device_id - 1)); else state_array[0].all &= ~(1 << (device_id - 1)); }
     bool GetState(uint8_t dev_id) { return state_array[0].all >> (dev_id - 1) & 1; }
     void SetAllState(uint8_t state) { state_array[0].all = state; }

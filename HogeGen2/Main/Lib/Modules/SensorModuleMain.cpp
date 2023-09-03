@@ -5,6 +5,7 @@ using namespace HogeGen2;
 
 SensorModuleMain::SensorModuleMain(uint8_t _module_num) : SensorModule(_module_num) {
     Hoge::RegisterRequestSensor([&](){ SendCommand((uint8_t)CMD_SensorModule::GetSensorData); });
+    Hoge::RegisterIPSerialize(module_name, this);
 }
 
 void SensorModuleMain::ReceiveCommand(uint8_t cmd, uint8_t dev_id, uint8_t length, void *data) {
@@ -29,6 +30,23 @@ void SensorModuleMain::SendCommand(uint8_t cmd) {
     if (!Hoge::serial.IsConnect()) return;
     SetWaitForResponse(true);
     Hoge::serial.Send((uint8_t)module_id, cmd, module_num, 0, 0, nullptr);
-    while (GetWaitForResponse() && Hoge::Good()) {}
+    while (GetWaitForResponse() && Hoge::Good() && Hoge::serial.IsConnect()) {}
     SetWaitForResponse(false);
+}
+
+std::pair<uint8_t, std::shared_ptr<uint8_t[]>> SensorModuleMain::Serialized() {
+    uint8_t ba_size = sizeof(digital_array[0].all);
+    uint8_t sa_size = sizeof(analog_array);
+
+    if (serialized.get() == nullptr) {
+        serialized = std::shared_ptr<uint8_t[]>(new uint8_t[3 + ba_size + sa_size]);
+    }
+
+    serialized.get()[0] = (uint8_t)module_id;
+    serialized.get()[1] = (uint8_t)module_num;
+    serialized.get()[2] = (uint8_t)(ba_size + sa_size);
+    memcpy(serialized.get() + 3, digital_array, ba_size);
+    memcpy(serialized.get() + 3 + ba_size, analog_array, sa_size);
+
+    return std::make_pair(3 + ba_size + sa_size, serialized);
 }

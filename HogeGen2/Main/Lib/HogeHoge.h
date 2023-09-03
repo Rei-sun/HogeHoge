@@ -2,6 +2,7 @@
 #define _H_HOGEHOGE_
 
 #include <SerialCommunication.h>
+#include <IPCommunication.h>
 #include <HogeHogeSerial.h>
 #include <ModuleManagerMain.h>
 #include <CommandDefinition.h>
@@ -19,17 +20,13 @@ namespace HogeGen2 {
         // condition
         inline static bool condition = false;
 
-        /**
-         * @brief Abort handler
-        */
+        /// @brief Abort handler
         static void abort_handler(int sig) {
             Hoge::condition = false;
             printf("Keyboard interrupted.\n");
         }
 
-        /**
-         * @brief Regist Abort handler function
-        */
+        /// @brief Regist Abort handler function
         static void RegisterAbort() {
             signal(SIGINT, Hoge::abort_handler);
         }
@@ -130,14 +127,11 @@ namespace HogeGen2 {
         // vector for set actuator control function
         inline static std::vector<std::function<void()>> batchFunc;
 
+        inline static IPCommunication ip_communication = IPCommunication();
+
     public:
         // Instance for serial communication
         inline static HogeHogeSerial serial;
-
-        /**
-         * @brief Constructer
-        */
-        Hoge() {}
 
         static void Init() {
             printf("pid = %d\n", getpid());
@@ -157,10 +151,14 @@ namespace HogeGen2 {
             ModuleManagerMain::SetModule<SolenoidModuleMain>(1);
             
             RegisterAbort();
+            
             serial.RegisterCallbackOnConnect(OnConnect);
             serial.RegisterCallbackOnReceive(OnReceive);
             serial.RegisterCallbackOnReconnect(OnReconnect);
             serial.Start(ConfigFileLoader::config.target_device_name);
+
+            ip_communication.Start(ConfigFileLoader::config.gui_server_port);
+
             condition = true;
         }
 
@@ -180,6 +178,16 @@ namespace HogeGen2 {
         /// @brief register set actuator function
         /// @param func 
         static void RegisterBatchSender(std::function<void()> func) { batchFunc.push_back(func); }
+
+        /// @brief register IModuleSerializer for IP
+        /// @param key key
+        /// @param p IModuleSerializer pointer
+        static void RegisterIPSerialize(std::string key, IModuleSerializer* p) { IPCommunication::RegisterModuleSerialize(key, p); }
+
+        /// @brief register IModuleController for IP
+        /// @param key key
+        /// @param p IModuleController pointer
+        static void RegisterIPControl(std::string key, IModuleController* p) { IPCommunication::RegisterModuleControl(key, p); }
     };
 }
 #endif
