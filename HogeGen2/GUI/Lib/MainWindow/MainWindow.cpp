@@ -154,6 +154,7 @@ MainWindow::MainWindow():
     // モードによって動作を変更する
     if(mode != 0) {
         ConnectButton_OnClicked();
+        connect_button->setEnabled(false);
     }
 
     // モジュールを作成する。
