@@ -21,3 +21,29 @@ template<> void ModuleManagerGUI::SetModule<SolenoidModuleGUI>(int count, IPComm
     auto vp = MakeModule<SolenoidModuleGUI>(count, ip); 
     solenoidModules.insert(solenoidModules.end(), vp.begin(), vp.end());
 }
+
+void ModuleManagerGUI::UnsetModules() {
+    for (auto module : encoderModules) {
+        delete module;
+    }
+    encoderModules.clear();
+    module_composition.SetCount(ModuleID::EncoderModule, 0);
+
+    for (auto module : sensorModules) {
+        delete module;
+    }
+    sensorModules.clear();
+    module_composition.SetCount(ModuleID::SensorModule, 0);
+
+    for (auto module : motorModules) {
+        delete module;
+    }
+    motorModules.clear();
+    module_composition.SetCount(ModuleID::MotorModule, 0);
+
+    for (auto module : solenoidModules) {
+        delete module;
+    }
+    solenoidModules.clear();
+    module_composition.SetCount(ModuleID::SolenoidModule, 0);
+}

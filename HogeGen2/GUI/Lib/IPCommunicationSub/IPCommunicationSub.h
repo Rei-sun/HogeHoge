@@ -1,16 +1,19 @@
 #pragma once
 
+#include <CommandDefinition.h>
 #include <Client.h>
 #include <Module.h>
 #include <IModuleDeserializer.h>
 #include <map>
 #include <sstream>
+#include <ModuleComposition.h>
+#include <GlobalFlagManager.h>
 
 namespace HogeGen2 {
 
 class IPCommunicationSub {
     Client client;
-    
+    static inline bool wait_for_responce = false;
     static inline std::map<ModuleID, std::vector<IModuleDeserializer*>> deserializer_reference;
 
     static void Receive(Client* cp, uint8_t* data, int size) {
@@ -26,7 +29,7 @@ class IPCommunicationSub {
 
             auto data_size = buffer[2] + 3;
 
-            if (buffer_idx <= data_size) return;
+            if (buffer_idx < data_size) return;
 
             // バッファから取り出す
             uint8_t *msg = new uint8_t[data_size];
@@ -39,10 +42,25 @@ class IPCommunicationSub {
             auto module_data_size = msg[2];
             auto module_data = msg + 3;
 
-            auto it = deserializer_reference.find((ModuleID)module_id);
-            if (it ==  deserializer_reference.end()) return;
-            
-            deserializer_reference[(ModuleID)module_id][module_num - 1]->Deserialize((uint8_t *)module_data, module_data_size);
+            // モジュールIDが有効な場合
+            if (module_id != 0) {
+
+                auto it = deserializer_reference.find((ModuleID)module_id);
+                if (it ==  deserializer_reference.end()) return;
+                
+                deserializer_reference[(ModuleID)module_id][module_num - 1]->Deserialize((uint8_t *)module_data, module_data_size);
+
+            } else {
+
+                if (module_num == (uint8_t)IPCMD::ModuleCount) {
+                    for (int i = 0; i < module_data_size; i+=2) {
+                        module_composition.AddCount((ModuleID)module_data[i], module_data[i+1]);
+                    }
+                }
+
+                wait_for_responce = false;
+
+            }
 
             // バッファを詰める & index reset
             for (int i = 0; i < buffer_idx - data_size; i++) {
@@ -51,6 +69,7 @@ class IPCommunicationSub {
                 buffer[i] = val;
             }
             buffer_idx = buffer_idx - data_size;
+
         }
     }
 
@@ -76,6 +95,8 @@ public:
 
     void Stop() {
         client.Close();
+        wait_for_responce = false;
+        deserializer_reference.clear();
     }
 
     bool IsConnected() {
@@ -98,6 +119,21 @@ public:
         uint8_t device_num = _device_num;
         float value = _value;
         client.SendStr("%s %s %d %d %f", cmd_str.c_str(), module_str.c_str(), module_num, device_num, value);
+    }
+
+    void SendBar(std::vector<ModuleID> module_ids) {
+        if(!client.IsConnected()) return;
+        auto cmd_str = std::string("Bar");
+        std::stringstream arg_str;
+        for (int i = 0; i < module_ids.size() - 1; i++) {
+            arg_str << (int)module_ids[i] << " ";
+        }
+        if (module_ids.size() != 0) {
+            arg_str << (int)module_ids[module_ids.size() - 1];
+        }
+        wait_for_responce = true;
+        client.SendStr("%s %s", cmd_str.c_str(), arg_str.str().c_str());
+        while (wait_for_responce && !IsMainClose) {}
     }
 }; 
 

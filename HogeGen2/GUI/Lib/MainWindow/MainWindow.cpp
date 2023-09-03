@@ -1,54 +1,15 @@
 #include "MainWindow.h"
-#include <IPCommunicationSub.h>
-#include <IGroupBox.h>
-#include <ModuleManagerGUI.h>
-#include <QMainWindow>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QScrollArea>
-#include <QCommandLineParser>
-#include <QTextStream>
-#include <QTimer>
-#include <EncoderModuleGUI.h>
-#include <MotorModuleGUI.h>
-#include <SensorModuleGUI.h>
-#include <SolenoidModuleGUI.h>
-#include <ModuleManagerGUI.h>
-#include <iostream>
-#include <future>
 
 using namespace HogeGen2;
 
-QScrollArea *MainWindow::CreateBaseScrollArea() {
-    // ScrollArea で表示する Widget 作成
-    // レイアウト作成
-    auto layout_vbox = new QVBoxLayout();
-    layout_vbox->setObjectName("Contents");
-    layout_vbox->setSpacing(0);
-    layout_vbox->setContentsMargins(0,0,0,0);
-    // Widget にセット
-    auto widget = new QWidget();
-    widget->setLayout(layout_vbox);
-    widget->setObjectName("Contents Widget");
-
-    // ScrollArea を作成
-    QScrollArea *scrollarea = new QScrollArea();
-    scrollarea->setWidget(widget);
-    scrollarea->setContentsMargins(0,0,0,0);
-
-    return scrollarea;
-}
-
-QGroupBox *MainWindow::CreateGroupBox(QString str, std::vector<IGroupBox*> modules) {
+QGroupBox *MainWindow::CreateModuleGroupBox(QString str) {
     // ScrollArea で表示する Widget 作成
     // レイアウト作成
     auto layout_vbox = new QVBoxLayout();
     layout_vbox->setSpacing(0);
     layout_vbox->setContentsMargins(0,0,0,0);
-    // レイアウトにグループボックスを追加する
-    for (auto module : modules) {
-        layout_vbox->addWidget(module->GetGroupBox());
-    }
+    layout_vbox->setAlignment(Qt::AlignTop);
+
     // スクロール用ウィジェットにレイアウトをセット
     auto scroll_widget = new QWidget();
     scroll_widget->setLayout(layout_vbox);
@@ -57,9 +18,12 @@ QGroupBox *MainWindow::CreateGroupBox(QString str, std::vector<IGroupBox*> modul
     QScrollArea *scrollarea = new QScrollArea();
     scrollarea->setWidget(scroll_widget);
     scrollarea->setContentsMargins(0,0,0,0);
+    scrollarea->setObjectName(str);
+    scrollarea->setWidgetResizable(true);
 
     // グループボックス生成
     auto group = new QGroupBox(str);
+    group->setObjectName(str);
     // グループボックス用レイアウト生成
     auto group_layout = new QVBoxLayout(group);
     group_layout->setContentsMargins(0,0,0,0);
@@ -70,9 +34,62 @@ QGroupBox *MainWindow::CreateGroupBox(QString str, std::vector<IGroupBox*> modul
     return group;
 }
 
-template<typename T> QGroupBox *MainWindow::CreateModuleGroupBox(QString str, std::vector<T*> modules) {
+void MainWindow::AddModuleWidget(QString str, std::vector<IGroupBox*> modules) {
+    QScrollArea *scrollarea = centralWidget()->findChild<QScrollArea*>(str);
+    auto scroll_widget = scrollarea->takeWidget();
+    QVBoxLayout *layout_vbox = dynamic_cast<QVBoxLayout*>(scroll_widget->layout());
+    // レイアウトにグループボックスを追加する
+    for (auto module : modules) {
+        layout_vbox->addWidget(module->GetGroupBox());
+    }
+    scrollarea->setWidget(scroll_widget);
+}
+
+template<typename T> void MainWindow::SetupModuleWidget(QString str, std::vector<T*> modules) {
     std::vector<IGroupBox*> igroup_boxs(std::begin(modules), std::end(modules));
-    return CreateGroupBox(str, igroup_boxs);
+    AddModuleWidget(str, igroup_boxs);
+}
+
+void MainWindow::UnsetModuleWidget(QString str) {
+    QScrollArea *scrollarea = centralWidget()->findChild<QScrollArea*>(str);
+    auto scroll_widget = scrollarea->takeWidget();
+    QVBoxLayout *layout_vbox = dynamic_cast<QVBoxLayout*>(scroll_widget->layout());
+    // レイアウトのグループボックスを削除する
+    QLayoutItem *child;
+    while ((child = layout_vbox->takeAt(0)) != nullptr) {
+        delete child->widget(); // delete the widget
+        delete child;   // delete the layout item
+    }
+    scrollarea->setWidget(scroll_widget);
+}
+
+void MainWindow::SetupModuleGroupBoxWidget() {
+    ip_communication.SendBar({
+        ModuleID::EncoderModule, 
+        ModuleID::SensorModule,
+        ModuleID::MotorModule,
+        ModuleID::SolenoidModule
+    });
+
+    ModuleManagerGUI::SetModule<EncoderModuleGUI>(module_composition.GetCount(ModuleID::EncoderModule), &ip_communication);
+    SetupModuleWidget<EncoderModuleGUI>("EncoderModule", ModuleManagerGUI::encoderModules);
+
+    ModuleManagerGUI::SetModule<SensorModuleGUI>(module_composition.GetCount(ModuleID::SensorModule), &ip_communication);
+    SetupModuleWidget<SensorModuleGUI>("SensorModule", ModuleManagerGUI::sensorModules);
+
+    ModuleManagerGUI::SetModule<MotorModuleGUI>(module_composition.GetCount(ModuleID::MotorModule), &ip_communication);
+    SetupModuleWidget<MotorModuleGUI>("MotorModule", ModuleManagerGUI::motorModules);
+
+    ModuleManagerGUI::SetModule<SolenoidModuleGUI>(module_composition.GetCount(ModuleID::SolenoidModule), &ip_communication);
+    SetupModuleWidget<SolenoidModuleGUI>("SolenoidModule", ModuleManagerGUI::solenoidModules);
+}
+
+void MainWindow::UnsetModuleGroupBoxWidget() {
+    ModuleManagerGUI::UnsetModules();
+    UnsetModuleWidget("EncoderModule");
+    UnsetModuleWidget("SensorModule");
+    UnsetModuleWidget("MotorModule");
+    UnsetModuleWidget("SolenoidModule");
 }
 
 void MainWindow::SetTimer() {
@@ -94,6 +111,10 @@ void MainWindow::TimerStart() {
 
 void MainWindow::TimerStop() {
     Timer.stop();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    IsMainClose = true;
 }
 
 MainWindow::MainWindow():
@@ -127,8 +148,15 @@ MainWindow::MainWindow():
            ConnectButton_OnClicked();
     });
 
-    // 一時的
-    Setup();
+    // 各モジュールの情報を表示する領域を作成する 
+    SetupGroupBox();
+
+    // モードによって動作を変更する
+    if(mode != 0) {
+        ConnectButton_OnClicked();
+    }
+
+    // モジュールを作成する。
 
     // タイトル設定
     auto title = QString("HogeHoge");
@@ -142,29 +170,21 @@ MainWindow::MainWindow():
     show();
 
     SetTimer();
-    TimerStart();
 }
 
-void MainWindow::Setup() {
-    // if (mode != 0) return;
+void MainWindow::SetupGroupBox() {
 
-    ModuleManagerGUI::SetModule<EncoderModuleGUI>(1, &ip_communication);
-    auto encoder_module_group = CreateModuleGroupBox("Encoder Module", ModuleManagerGUI::encoderModules);
+    auto encoder_module_group = CreateModuleGroupBox("EncoderModule");
     centralWidget()->layout()->addWidget(encoder_module_group);
 
-    ModuleManagerGUI::SetModule<SensorModuleGUI>(1, &ip_communication);
-    auto sensor_module_group = CreateModuleGroupBox("Sensor Module", ModuleManagerGUI::sensorModules);
+    auto sensor_module_group = CreateModuleGroupBox("SensorModule");
     centralWidget()->layout()->addWidget(sensor_module_group);
 
-    ModuleManagerGUI::SetModule<MotorModuleGUI>(1, &ip_communication);
-    auto motor_module_group = CreateModuleGroupBox("Motor Module", ModuleManagerGUI::motorModules);
+    auto motor_module_group = CreateModuleGroupBox("MotorModule");
     centralWidget()->layout()->addWidget(motor_module_group);
     
-    ModuleManagerGUI::SetModule<SolenoidModuleGUI>(1, &ip_communication);
-    auto solenoid_module_group = CreateModuleGroupBox("Solenoid Module", ModuleManagerGUI::solenoidModules);
+    auto solenoid_module_group = CreateModuleGroupBox("SolenoidModule");
     centralWidget()->layout()->addWidget(solenoid_module_group);
-
-    QTextStream(stdout) << "Setup\n";
 
 }
 
@@ -269,17 +289,28 @@ void MainWindow::TimerUpdate() {
 }
 
 void MainWindow::ConnectButton_OnClicked() {
+    // 接続していた場合は切断
+    // 接続していない場合は接続
     if (ip_communication.IsConnected()) {
+        TimerStop();
         ip_communication.Stop();
     } else {
         ip_communication.Start("127.0.0.1", port);
+        TimerStart();
     }
     
+    // 接続の状態によってラベルとボタンのテキストを変更する
     if (ip_communication.IsConnected()) {
+
         connect_label->setText("Connected");
         connect_button->setText("Disconnect");
+        SetupModuleGroupBoxWidget();
+    
     } else {
+    
         connect_label->setText("Disconnected");
         connect_button->setText("Connect");
+        UnsetModuleGroupBoxWidget();
+    
     }
 }

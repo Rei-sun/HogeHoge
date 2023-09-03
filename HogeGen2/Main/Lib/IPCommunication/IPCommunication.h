@@ -1,8 +1,10 @@
 #pragma once
 
+#include <CommandDefinition.h>
 #include <Server.h>
 #include <IModuleSerializer.h>
 #include <IModuleController.h>
+#include <ModuleComposition.h>
 #include <map>
 #include <sstream>
 
@@ -67,7 +69,7 @@ public:
             sp->SendData(client_fd, serialized.second.get(), serialized.first);
         
         // Command "Foo" : Foo <Module name> <Module number> <Device ID> <value>
-        } else if ("Foo") {
+        } else if (cmd[0] == "Foo") {
 
             // If cmd.size < 5, exit function
             if (cmd.size() < 5) return;
@@ -87,6 +89,20 @@ public:
             auto dev_id = std::stoi(cmd[3]);
             auto value = std::stof(cmd[4]);
             v[num - 1]->Control(dev_id, value);
+
+        } else if (cmd[0] == "Bar") {
+            uint8_t tx_size = 3 + (cmd.size() - 1) * 2;
+            uint8_t tx_data[tx_size];
+            tx_data[0] = (uint8_t)ModuleID::UndefinedModule;
+            tx_data[1] = (uint8_t)IPCMD::ModuleCount;
+            tx_data[2] = (cmd.size() - 1) * 2;
+            for (int i = 1; i < cmd.size(); i++) {
+                auto module_id = std::stoi(cmd[i]);
+                tx_data[3 + (i - 1) * 2] = module_id;
+                tx_data[3 + (i - 1) * 2 + 1] = module_composition.GetCount((ModuleID)module_id);
+            }
+            sp->SendData(client_fd, tx_data, tx_size);
+
         }
     }
 

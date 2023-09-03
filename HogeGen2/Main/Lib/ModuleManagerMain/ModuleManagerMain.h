@@ -4,6 +4,7 @@
 #include <MotorModuleMain.h>
 #include <SensorModuleMain.h>
 #include <SolenoidModuleMain.h>
+#include <ModuleComposition.h>
 
 namespace HogeGen2 {
 

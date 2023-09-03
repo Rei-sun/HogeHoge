@@ -24,6 +24,7 @@ public:
     inline static std::vector<SolenoidModuleGUI*> solenoidModules;
 
     template<typename T> static void SetModule(int count, IPCommunicationSub *ip);
+    static void UnsetModules();
 };
 
 }

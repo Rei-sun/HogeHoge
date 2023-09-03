@@ -23,6 +23,8 @@
 #include <future>
 #include <IGroupBox.h>
 #include <ModuleManagerGUI.h>
+#include <GlobalFlagManager.h>
+#include <map>
 
 namespace HogeGen2 {
 
@@ -33,16 +35,21 @@ namespace HogeGen2 {
         QLabel *connect_label;
         QPushButton *connect_button;
 
-        QScrollArea *CreateBaseScrollArea();
-        QGroupBox *CreateGroupBox(QString str, std::vector<IGroupBox*> modules);
-        template<typename T> QGroupBox *CreateModuleGroupBox(QString str, std::vector<T*> modules);
+        //QScrollArea *CreateBaseScrollArea();
+        QGroupBox *CreateModuleGroupBox(QString str);
+        void SetupGroupBox();
+        void AddModuleWidget(QString str, std::vector<IGroupBox*> modules);
+        template<typename T> void SetupModuleWidget(QString str, std::vector<T*> modules);
+        void UnsetModuleWidget(QString str);
+        void SetupModuleGroupBoxWidget();
+        void UnsetModuleGroupBoxWidget();
         void SetTimer();
         void TimerStart();
         void TimerStop();
+        void closeEvent(QCloseEvent *event);
     public:
         static inline IPCommunicationSub ip_communication = IPCommunicationSub();
         MainWindow();
-        void Setup();
         bool CommandLineAnalyze(int argc, QStringList argv);
         static void TimerUpdate();
         void ConnectButton_OnClicked();
