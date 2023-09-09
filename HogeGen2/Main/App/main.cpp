@@ -3,11 +3,18 @@
 
 #include <ConfigFileLoader.h>
 
+#include <MessageOutputter.h>
+
 using namespace HogeGen2;
 
 int main(){
     Hoge::Init();
     ConfigFileLoader con;
+
+    //MessageOutputter output(&std::cerr);
+    //MessageOutputter output("test.txt");
+
+    //output.Message("Test");
 
     //-----------------------------
     // Setup Start

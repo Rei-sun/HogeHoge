@@ -15,10 +15,43 @@
 #include <vector>
 #include <queue>
 
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 namespace HogeGen2 {
     class Hoge {
+        typedef struct {
+            pid_t pid;
+            std::string name;
+        } ProcessID;
+        
+        // sub process list
+        inline static std::vector<ProcessID> pids;
+        
         // condition
         inline static bool condition = false;
+
+        // Buffer of receive data from serial
+        inline static std::queue<uint8_t> receive_data_buffer;
+
+        // Buffer of msg
+        inline static std::queue<std::vector<uint8_t>> receive_msg_buffer;
+        
+        // temporary buffer
+        inline static std::vector<uint8_t> tmp_buffer;
+
+        // vector for sensor value request function 
+        inline static std::vector<std::function<void()>> requestFunc;
+
+        // vector for set actuator control function
+        inline static std::vector<std::function<void()>> batchFunc;
+
+        // instance for ip communication
+        inline static IPCommunication ip_communication = IPCommunication();
 
         /// @brief Abort handler
         static void abort_handler(int sig) {
@@ -26,11 +59,71 @@ namespace HogeGen2 {
             printf("Keyboard interrupted.\n");
         }
 
+        /// @brief child handler
+        static void child_handler(int sig){
+            pid_t pid;
+            int stat;
+            pid = wait(&stat);
+
+            std::cout << "Handle catch pid = " << pid << std::endl;
+
+            if (pid == 0)
+                return;
+            else if (pid == -1)
+                return;
+
+            for(auto it = pids.begin(); it != pids.end();){
+                if(pid == (*it).pid){
+                    std::cout << "[" << (*it).name << "]" << " Return " << stat << std::endl;
+                    pids.erase(it);
+                    return;
+                }else{
+                    it++;
+                }
+            }
+        }
+
+        /// @brief process fork process
+        static void LaunchGUIProess() {
+            ProcessID process_pid;
+            process_pid.pid = fork();
+
+            if (process_pid.pid == -1) {
+                
+                // フォーク失敗
+                std::cerr << "fork error." << std::endl;
+                return;
+
+            }
+            
+            if (process_pid.pid == 0) {
+                
+                // 子プロセス
+                std::string arg_port = "--port=" + std::to_string(ConfigFileLoader::config.gui_server_port);
+                std::string path = HOGE_ROOT "GUI/build/App/GUI";
+                if(execl(path.c_str(), path.c_str(), "--mode=1", arg_port.c_str(), nullptr) != 0) {
+                    perror("execl");
+                    exit(1);
+                }
+
+            } else {
+            
+                // 親プロセス
+                if ( signal(SIGCHLD, child_handler) == SIG_ERR ) {
+                    exit(1);
+                }
+                process_pid.name = "GUI";
+                pids.push_back(process_pid);
+            
+            }
+        }
+
         /// @brief Regist Abort handler function
         static void RegisterAbort() {
             signal(SIGINT, Hoge::abort_handler);
         }
 
+        /// @brief Regist Connect callback function
         static void OnConnect() {
             std::queue<uint8_t> empty1;
             std::swap(receive_data_buffer, empty1);
@@ -44,10 +137,12 @@ namespace HogeGen2 {
             std::cout << "Receive buffer clear." << std::endl;
         }
 
+        /// @brief Regist Reconnect callback function
         static void OnReconnect() {
             OnConnect();    
         }
 
+        /// @brief Regist Receive callback function
         static void OnReceive(void* recv_data, size_t recv_size) {
             auto data = (uint8_t*)recv_data;
             
@@ -88,6 +183,7 @@ namespace HogeGen2 {
             }
         }
 
+        /// @brief Received command process function
         static void ReceiveCommand(uint8_t module_id, uint8_t cmd, uint8_t module_num, uint8_t dev_id, uint8_t length, void *data) {
             //printf("%x, %x, %x, %x\n", module_id, cmd, module_num, dev_id);
             
@@ -111,23 +207,6 @@ namespace HogeGen2 {
 
             }
         }
-
-        // Buffer of receive data from serial
-        inline static std::queue<uint8_t> receive_data_buffer;
-
-        // Buffer of msg
-        inline static std::queue<std::vector<uint8_t>> receive_msg_buffer;
-        
-        // temporary buffer
-        inline static std::vector<uint8_t> tmp_buffer;
-
-        // vector for sensor value request function 
-        inline static std::vector<std::function<void()>> requestFunc;
-
-        // vector for set actuator control function
-        inline static std::vector<std::function<void()>> batchFunc;
-
-        inline static IPCommunication ip_communication = IPCommunication();
 
     public:
         // Instance for serial communication
@@ -158,6 +237,10 @@ namespace HogeGen2 {
             serial.Start(ConfigFileLoader::config.target_device_name);
 
             ip_communication.Start(ConfigFileLoader::config.gui_server_port);
+
+            if (ConfigFileLoader::config.use_gui) {
+                LaunchGUIProess();
+            }
 
             condition = true;
         }
