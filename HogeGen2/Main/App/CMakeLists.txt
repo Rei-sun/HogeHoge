@@ -6,6 +6,8 @@ add_executable( ${PROJECT_NAME}
 )
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
+    ${COM_DIR}/
+    ${COM_DIR}/MessageOutputter/
     ${LIB_DIR}/
     ${APP_DIR}/Application/
 )
