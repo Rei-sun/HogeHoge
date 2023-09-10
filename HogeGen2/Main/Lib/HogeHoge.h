@@ -22,13 +22,15 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <MessageOutputter.h>
+
 namespace HogeGen2 {
     class Hoge {
         typedef struct {
             pid_t pid;
             std::string name;
         } ProcessID;
-        
+
         // sub process list
         inline static std::vector<ProcessID> pids;
         
@@ -208,21 +210,40 @@ namespace HogeGen2 {
             }
         }
 
+        static void InitLog() {
+            std::stringstream ss;
+            auto now_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            ss << "HogeHoge_" << std::put_time(localtime(&now_time), "%Y-%m-%d_%H%M%S") << ".log";
+            log_output.Init(ss.str());
+        }
+
+        static void SetPriority() {
+            auto new_prio = nice(-20);
+            if (new_prio == -1) {
+                log_output.WarnMessage("nice: %s", std::strerror(errno));
+            } else {
+                log_output.InfoMessage("Process priolity = %d\n", new_prio);
+            }
+        }
+
     public:
         // Instance for serial communication
         inline static HogeHogeSerial serial;
 
         static void Init() {
-            printf("pid = %d\n", getpid());
-            auto new_prio = nice(-20);
-            if (new_prio == -1) perror("nice");
-            else printf("priolity = %d\n", new_prio);
+            InitLog();
 
+            log_output.InfoMessage("PID = %d", getpid());
+
+            log_output.DebugMessage("Load config file.");
             ConfigFileLoader::LoadConfig();
+
             if (!ConfigFileLoader::IsConfigLoaded()) {
-                printf("Config file load failed: %s\n", ConfigFileLoader::config_filename.c_str());
+                log_output.ErrorMessage("Config file load failed: %s\n", ConfigFileLoader::config_filename.c_str());
                 return;
             }
+
+            SetPriority();
 
             ModuleManagerMain::SetModule<EncoderModuleMain>(1);
             ModuleManagerMain::SetModule<MotorModuleMain>(1);
