@@ -7,6 +7,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <stdarg.h>
+#include <iomanip>
 
 namespace HogeGen2 {
 

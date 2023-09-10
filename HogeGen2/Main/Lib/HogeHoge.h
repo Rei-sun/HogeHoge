@@ -67,7 +67,7 @@ namespace HogeGen2 {
             int stat;
             pid = wait(&stat);
 
-            std::cout << "Handle catch pid = " << pid << std::endl;
+            log_output.InfoMessage("Handle catch. pid = %d", pid);
 
             if (pid == 0)
                 return;
@@ -76,7 +76,7 @@ namespace HogeGen2 {
 
             for(auto it = pids.begin(); it != pids.end();){
                 if(pid == (*it).pid){
-                    std::cout << "[" << (*it).name << "]" << " Return " << stat << std::endl;
+                    log_output.InfoMessage("[%s] returns %s", (*it).name, stat);
                     pids.erase(it);
                     return;
                 }else{
@@ -136,7 +136,7 @@ namespace HogeGen2 {
         
             tmp_buffer.clear();
 
-            std::cout << "Receive buffer clear." << std::endl;
+            log_output.DebugMessage("Receive buffer clear.");
         }
 
         /// @brief Regist Reconnect callback function

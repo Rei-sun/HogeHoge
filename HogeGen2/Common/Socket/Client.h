@@ -1,5 +1,6 @@
 #pragma once
 
+#include <../MessageOutputter/MessageOutputter.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -13,6 +14,8 @@
 #include <errno.h>
 #include <vector>
 #include <functional>
+
+namespace HogeGen2 {
 
 /// @brief クライアントクラス
 class Client {
@@ -103,7 +106,7 @@ public:
             }
         }
         end:
-        fprintf(stdout, "[Info]socket:%d  disconnected. \n", client->server_fd);
+        log_output.InfoMessage("socket:%d  disconnected.", client->server_fd);
         close(client->server_fd);
         client->server_fd = -1;
         return nullptr;
@@ -129,7 +132,7 @@ public:
         this->server_addr.sin_family = AF_INET;
         this->server_addr.sin_port = htons(port);
         this->server_addr.sin_addr.s_addr = inet_addr(host);
-        printf("[Info]Init Client. %s, %d\n", host, port);
+        log_output.InfoMessage("Init Client. %s, %d", host, port);
         return server_fd;
     }
     
@@ -143,7 +146,7 @@ public:
                 perror("connect");
                 return 1;
             }
-            printf("[Info]Connected.\n");
+            log_output.InfoMessage("Connected.");
             int thread_create = -1;
             if( (thread_create = pthread_create(&temp_thread, nullptr, Client::CommThread, this)) != 0) {
                 perror("pthread_create");
@@ -155,11 +158,11 @@ public:
                 }else{
                     this->receive_proc = f;
                     continueFlag = true;
-                    printf("[Info]Client start.\n");
+                    log_output.InfoMessage("Client start.");
                 }
             }
         }else{
-            printf("[Error]Client has not been Init.\n");
+            log_output.WarnMessage("Client has not been Init.");
             return -1;
         }
         return 0;
@@ -195,3 +198,5 @@ public:
         return continueFlag;
     }
 };
+
+}
