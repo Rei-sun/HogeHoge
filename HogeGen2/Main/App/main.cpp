@@ -46,7 +46,8 @@ int main(){
         // Set actuator control
         Hoge::SetActuatorControl();
 
-        //printf("%f\n", timer.GetProcessTime());
+        // 処理にかかった時間を表示する。
+        //log_output.DebugMessage("%f", timer.GetProcessTime());
 
         // Sleep for loop
         timer.Sleep();
