@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <string.h>
+#include <cstring>
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/types.h>
@@ -52,7 +52,7 @@ class Server {
     int Transmit(int fd, const char* tx_data, size_t tx_size) {
         int ret;
         if((ret = send(fd, tx_data, tx_size, 0)) < 0) {
-            log_output.WarnMessage("send: %s", std::strerror(errno));
+            log_output.ErrorMessage("send: %s", std::strerror(errno));
             log_output.InfoMessage("Server transmit fd = %d", fd);
             return -1;
         }else if(ret == 0){
@@ -131,7 +131,7 @@ public:
                             close(server->client_fds[i]);
                             server->client_fds.erase(server->client_fds.begin() + i);
                         } else {
-                            perror("read");
+                            log_output.ErrorMessage("read: %s", std::strerror(errno));
                             goto end;
                         }
                     }
@@ -167,18 +167,18 @@ public:
     /// @details ソケットを生成する、クライアンを待つスレッドを生成する
     int Init(int port, std::function<void(Server*, char*, int, int)> f) {
         if((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-            perror("socket error");
+            log_output.ErrorMessage("socket: %s", std::strerror(errno));
             return 1;
         }
         this->server_addr.sin_family = AF_INET;
         this->server_addr.sin_port = htons(port);
         this->server_addr.sin_addr.s_addr = INADDR_ANY;
         if(bind(this->server_fd, (struct sockaddr *)&this->server_addr, sizeof(this->server_addr)) < 0) {
-            perror("bind error");
+            log_output.ErrorMessage("bind: %s", std::strerror(errno));
             return 2;
         }
         if(listen(this->server_fd, 1) < 0) {
-            perror("listen error");
+            log_output.ErrorMessage("listen: %s", std::strerror(errno));
             return 3;
         }
 
@@ -188,11 +188,11 @@ public:
         // pthread_t temp_thread;
         int thread_create = 1;
         if( (thread_create = pthread_create(&temp_thread, nullptr, Server::CommThread, this)) != 0) {
-            perror("pthread_create");
+            log_output.ErrorMessage("pthread_create: %s", std::strerror(errno));
             return 4;
         }else{
             // if (pthread_detach(temp_thread) != 0) {
-            //     perror("pthread_detach");
+            //     log_output.ErrorMessage("pthread_detach: %s", std::strerror(errno));
             //     return 5;
             // }else{
             //     this->receive_proc = f;

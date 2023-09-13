@@ -2,7 +2,7 @@
     "HogeGen2": {
         "target_device_name": "/dev/ESP32-WROOM-32E",
         "baudrate": 2000000,
-        "use_gui": false,
+        "use_gui": true,
         "gui_server_port": 20000
     }
 }

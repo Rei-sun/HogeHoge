@@ -5,6 +5,8 @@ project(Main)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_CXX_FLAGS -rdynamic)
+
 message(${PROJECT_SOURCE_DIR})
 
 set(COM_DIR ${PROJECT_SOURCE_DIR}/../Common)

@@ -15,13 +15,13 @@
 #include <vector>
 #include <queue>
 #include <filesystem>
+#include <cstring>
 
 #include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <execinfo.h>
 
 #include <MessageOutputter.h>
 
@@ -60,6 +60,24 @@ namespace HogeGen2 {
         // instance for ip communication
         inline static IPCommunication ip_communication = IPCommunication();
 
+        /// @brief Seg handler
+        static void segv_handler(int sig) {
+            static int buffer_size = 10;
+            void *array[buffer_size];
+            char **strs;
+            int size = backtrace(array, buffer_size);
+            strs = backtrace_symbols(array, size);
+            if (strs != nullptr) {
+                std::stringstream ss;
+                for (int i = 0; i < size; i++) {
+                    ss << strs[i] << "\n";
+                }
+                log_output.InfoMessage("↓↓↓↓ BACKTRACE ↓↓↓↓\n%s", ss.str().c_str());
+                free(strs);
+                exit(1);
+            } 
+        }
+
         /// @brief Abort handler
         static void abort_handler(int sig) {
             Hoge::condition = false;
@@ -81,7 +99,7 @@ namespace HogeGen2 {
 
             for(auto it = pids.begin(); it != pids.end();){
                 if(pid == (*it).pid){
-                    log_output.InfoMessage("[%s] returns %d", (*it).name.c_str(), stat);
+                    log_output.InfoMessage("[%s] returns %s", (*it).name, stat);
                     pids.erase(it);
                     return;
                 }else{
@@ -98,7 +116,7 @@ namespace HogeGen2 {
             if (process_pid.pid == -1) {
                 
                 // フォーク失敗
-                std::cerr << "fork error." << std::endl;
+                log_output.ErrorMessage("fork: %s", std::strerror(errno));
                 return;
 
             }
@@ -109,7 +127,7 @@ namespace HogeGen2 {
                 std::string arg_port = "--port=" + std::to_string(ConfigFileLoader::config.gui_server_port);
                 std::string path = HOGE_ROOT "GUI/build/App/GUI";
                 if(execl(path.c_str(), path.c_str(), "--mode=1", arg_port.c_str(), nullptr) != 0) {
-                    perror("execl");
+                    log_output.FatalMessage("execl: %s", std::strerror(errno));
                     exit(1);
                 }
 
@@ -237,6 +255,8 @@ namespace HogeGen2 {
         inline static HogeHogeSerial serial;
 
         static void Init() {
+            signal(SIGSEGV, segv_handler);
+
             InitLog();
 
             log_output.InfoMessage("PID = %d", getpid());

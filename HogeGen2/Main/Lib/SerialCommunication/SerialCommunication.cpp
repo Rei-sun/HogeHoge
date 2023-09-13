@@ -69,7 +69,7 @@ void SerialCommunication::CommunicationProcess() {
                         // Disconnect
                         CloseSerialPort(true);
                     } else {
-                        log_output.WarnMessage("read: %s", std::strerror(errno));
+                        log_output.FatalMessage("read: %s", std::strerror(errno));
                         std::quick_exit(EXIT_FAILURE);
                     }
                 }

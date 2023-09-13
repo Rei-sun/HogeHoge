@@ -97,7 +97,6 @@ public:
         if (config_filename == ERROR_STR) return;
 
         // read config file
-        std::cout << "Config Loaded: " << config_filename << "\n";
         log_output.InfoMessage("Config Loaded: %s", config_filename.c_str());
         is_success = LoadConfigFile(config_filename,  config);
     }
