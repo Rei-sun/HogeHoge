@@ -14,6 +14,7 @@
 #include <functional>
 #include <vector>
 #include <queue>
+#include <filesystem>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -23,6 +24,10 @@
 #include <sys/wait.h>
 
 #include <MessageOutputter.h>
+
+#ifndef HOGE_PATH
+#define HOGE_PATH "This is a dummy. The real one is defined by CMake!"
+#endif
 
 namespace HogeGen2 {
     class Hoge {
@@ -76,7 +81,7 @@ namespace HogeGen2 {
 
             for(auto it = pids.begin(); it != pids.end();){
                 if(pid == (*it).pid){
-                    log_output.InfoMessage("[%s] returns %s", (*it).name, stat);
+                    log_output.InfoMessage("[%s] returns %d", (*it).name.c_str(), stat);
                     pids.erase(it);
                     return;
                 }else{
@@ -86,7 +91,7 @@ namespace HogeGen2 {
         }
 
         /// @brief process fork process
-        static void LaunchGUIProess() {
+        static void LaunchGUIProcess() {
             ProcessID process_pid;
             process_pid.pid = fork();
 
@@ -211,10 +216,11 @@ namespace HogeGen2 {
         }
 
         static void InitLog() {
-            std::stringstream ss;
+            std::stringstream filename;
             auto now_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-            ss << "HogeHoge_" << std::put_time(localtime(&now_time), "%Y-%m-%d_%H%M%S") << ".log";
-            log_output.Init(ss.str());
+
+            filename << HOGE_PATH << "Log/" << "HogeHoge_" << std::put_time(localtime(&now_time), "%Y-%m-%d_%H%M%S") << ".log";
+            log_output.Init(filename.str());
         }
 
         static void SetPriority() {
@@ -260,7 +266,7 @@ namespace HogeGen2 {
             ip_communication.Start(ConfigFileLoader::config.gui_server_port);
 
             if (ConfigFileLoader::config.use_gui) {
-                LaunchGUIProess();
+                LaunchGUIProcess();
             }
 
             condition = true;
