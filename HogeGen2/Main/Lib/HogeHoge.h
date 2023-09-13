@@ -14,11 +14,69 @@
 #include <functional>
 #include <vector>
 #include <queue>
+#include <filesystem>
+#include <cstring>
+
+#include <stdio.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <execinfo.h>
+
+#include <MessageOutputter.h>
+
+#ifndef HOGE_PATH
+#define HOGE_PATH "This is a dummy. The real one is defined by CMake!"
+#endif
 
 namespace HogeGen2 {
     class Hoge {
+        typedef struct {
+            pid_t pid;
+            std::string name;
+        } ProcessID;
+
+        // sub process list
+        inline static std::vector<ProcessID> pids;
+        
         // condition
         inline static bool condition = false;
+
+        // Buffer of receive data from serial
+        inline static std::queue<uint8_t> receive_data_buffer;
+
+        // Buffer of msg
+        inline static std::queue<std::vector<uint8_t>> receive_msg_buffer;
+        
+        // temporary buffer
+        inline static std::vector<uint8_t> tmp_buffer;
+
+        // vector for sensor value request function 
+        inline static std::vector<std::function<void()>> requestFunc;
+
+        // vector for set actuator control function
+        inline static std::vector<std::function<void()>> batchFunc;
+
+        // instance for ip communication
+        inline static IPCommunication ip_communication = IPCommunication();
+
+        /// @brief Seg handler
+        static void segv_handler(int sig) {
+            static int buffer_size = 10;
+            void *array[buffer_size];
+            char **strs;
+            int size = backtrace(array, buffer_size);
+            strs = backtrace_symbols(array, size);
+            if (strs != nullptr) {
+                std::stringstream ss;
+                for (int i = 0; i < size; i++) {
+                    ss << strs[i] << "\n";
+                }
+                log_output.InfoMessage("↓↓↓↓ BACKTRACE ↓↓↓↓\n%s", ss.str().c_str());
+                free(strs);
+                exit(1);
+            } 
+        }
 
         /// @brief Abort handler
         static void abort_handler(int sig) {
@@ -26,11 +84,71 @@ namespace HogeGen2 {
             printf("Keyboard interrupted.\n");
         }
 
+        /// @brief child handler
+        static void child_handler(int sig){
+            pid_t pid;
+            int stat;
+            pid = wait(&stat);
+
+            log_output.InfoMessage("Handle catch. pid = %d", pid);
+
+            if (pid == 0)
+                return;
+            else if (pid == -1)
+                return;
+
+            for(auto it = pids.begin(); it != pids.end();){
+                if(pid == (*it).pid){
+                    log_output.InfoMessage("[%s] returns %d", (*it).name.c_str(), stat);
+                    pids.erase(it);
+                    return;
+                }else{
+                    it++;
+                }
+            }
+        }
+
+        /// @brief process fork process
+        static void LaunchGUIProcess() {
+            ProcessID process_pid;
+            process_pid.pid = fork();
+
+            if (process_pid.pid == -1) {
+                
+                // フォーク失敗
+                log_output.ErrorMessage("fork: %s", std::strerror(errno));
+                return;
+
+            }
+            
+            if (process_pid.pid == 0) {
+                
+                // 子プロセス
+                std::string arg_port = "--port=" + std::to_string(ConfigFileLoader::config.gui_server_port);
+                std::string path = HOGE_ROOT "GUI/build/App/GUI";
+                if(execl(path.c_str(), path.c_str(), "--mode=1", arg_port.c_str(), nullptr) != 0) {
+                    log_output.FatalMessage("execl: %s", std::strerror(errno));
+                    exit(1);
+                }
+
+            } else {
+            
+                // 親プロセス
+                if ( signal(SIGCHLD, child_handler) == SIG_ERR ) {
+                    exit(1);
+                }
+                process_pid.name = "GUI";
+                pids.push_back(process_pid);
+            
+            }
+        }
+
         /// @brief Regist Abort handler function
         static void RegisterAbort() {
             signal(SIGINT, Hoge::abort_handler);
         }
 
+        /// @brief Regist Connect callback function
         static void OnConnect() {
             std::queue<uint8_t> empty1;
             std::swap(receive_data_buffer, empty1);
@@ -41,13 +159,15 @@ namespace HogeGen2 {
         
             tmp_buffer.clear();
 
-            std::cout << "Receive buffer clear." << std::endl;
+            log_output.DebugMessage("Receive buffer clear.");
         }
 
+        /// @brief Regist Reconnect callback function
         static void OnReconnect() {
             OnConnect();    
         }
 
+        /// @brief Regist Receive callback function
         static void OnReceive(void* recv_data, size_t recv_size) {
             auto data = (uint8_t*)recv_data;
             
@@ -88,6 +208,7 @@ namespace HogeGen2 {
             }
         }
 
+        /// @brief Received command process function
         static void ReceiveCommand(uint8_t module_id, uint8_t cmd, uint8_t module_num, uint8_t dev_id, uint8_t length, void *data) {
             //printf("%x, %x, %x, %x\n", module_id, cmd, module_num, dev_id);
             
@@ -112,38 +233,43 @@ namespace HogeGen2 {
             }
         }
 
-        // Buffer of receive data from serial
-        inline static std::queue<uint8_t> receive_data_buffer;
+        static void InitLog() {
+            std::stringstream filename;
+            auto now_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-        // Buffer of msg
-        inline static std::queue<std::vector<uint8_t>> receive_msg_buffer;
-        
-        // temporary buffer
-        inline static std::vector<uint8_t> tmp_buffer;
+            filename << HOGE_PATH << "Log/" << "HogeHoge_" << std::put_time(localtime(&now_time), "%Y-%m-%d_%H%M%S") << ".log";
+            log_output.Init(filename.str());
+        }
 
-        // vector for sensor value request function 
-        inline static std::vector<std::function<void()>> requestFunc;
-
-        // vector for set actuator control function
-        inline static std::vector<std::function<void()>> batchFunc;
-
-        inline static IPCommunication ip_communication = IPCommunication();
+        static void SetPriority() {
+            auto new_prio = nice(-20);
+            if (new_prio == -1) {
+                log_output.WarnMessage("nice: %s", std::strerror(errno));
+            } else {
+                log_output.InfoMessage("Process priolity = %d\n", new_prio);
+            }
+        }
 
     public:
         // Instance for serial communication
         inline static HogeHogeSerial serial;
 
         static void Init() {
-            printf("pid = %d\n", getpid());
-            auto new_prio = nice(-20);
-            if (new_prio == -1) perror("nice");
-            else printf("priolity = %d\n", new_prio);
+            signal(SIGSEGV, segv_handler);
 
+            InitLog();
+
+            log_output.InfoMessage("PID = %d", getpid());
+
+            log_output.DebugMessage("Load config file.");
             ConfigFileLoader::LoadConfig();
+
             if (!ConfigFileLoader::IsConfigLoaded()) {
-                printf("Config file load failed: %s\n", ConfigFileLoader::config_filename.c_str());
+                log_output.ErrorMessage("Config file load failed: %s\n", ConfigFileLoader::config_filename.c_str());
                 return;
             }
+
+            SetPriority();
 
             ModuleManagerMain::SetModule<EncoderModuleMain>(1);
             ModuleManagerMain::SetModule<MotorModuleMain>(1);
@@ -158,6 +284,10 @@ namespace HogeGen2 {
             serial.Start(ConfigFileLoader::config.target_device_name);
 
             ip_communication.Start(ConfigFileLoader::config.gui_server_port);
+
+            if (ConfigFileLoader::config.use_gui) {
+                LaunchGUIProcess();
+            }
 
             condition = true;
         }

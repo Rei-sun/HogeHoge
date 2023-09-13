@@ -12,9 +12,10 @@ add_library( ${PROJECT_NAME} SHARED
 
 target_include_directories( ${PROJECT_NAME} PUBLIC
     ${COM_DIR}/
-    ${COM_DIR}/nlohmann/
+    ${COM_DIR}/MessageOutputter/
     ${COM_DIR}/Module/
     ${COM_DIR}/ModuleManager/
+    ${COM_DIR}/nlohmann/
     ${COM_DIR}/Socket/
     ${LIB_DIR}/
     ${LIB_DIR}/IPCommunication/

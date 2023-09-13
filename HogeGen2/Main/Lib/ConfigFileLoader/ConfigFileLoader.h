@@ -1,5 +1,6 @@
 #pragma once
 
+#include <MessageOutputter.h>
 #include <json.hpp>
 #include <string>
 #include <fstream>
@@ -68,7 +69,7 @@ class ConfigFileLoader {
                 return j["LoadConfig"].get<std::string>();
             }
         } catch (json::exception e) {
-            std::cout << e.what() << "\n";
+            log_output.ErrorMessage("%s", e.what());
         }
 
         return ERROR_STR;
@@ -79,7 +80,7 @@ class ConfigFileLoader {
             json j = LoadJsonFile(HOGE_ROOT_PATH + filename);
             config.Load(j);
         } catch (json::exception e) {
-            std::cout << e.what() << "\n";
+            log_output.ErrorMessage("%s", e.what());
             return false;
         }
         return true;
@@ -96,7 +97,7 @@ public:
         if (config_filename == ERROR_STR) return;
 
         // read config file
-        std::cout << "Config Loaded: " << config_filename << "\n";
+        log_output.InfoMessage("Config Loaded: %s", config_filename.c_str());
         is_success = LoadConfigFile(config_filename,  config);
     }
 

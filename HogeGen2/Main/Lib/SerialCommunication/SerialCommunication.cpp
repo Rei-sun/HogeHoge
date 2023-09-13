@@ -1,11 +1,12 @@
 #include "SerialCommunication.h"
 #include <ConfigFileLoader.h>
+#include <MessageOutputter.h>
 
 using namespace HogeGen2;
 
 void SerialCommunication::StartCommunicationThread() {
     if (thread_continue) {
-        printf("already thread running.\n");
+        log_output.WarnMessage("already thread running.");
     } else {
         thread_continue = true;
         thread = std::shared_ptr<std::thread>(new std::thread(&SerialCommunication::CommunicationProcess, this));
@@ -13,7 +14,7 @@ void SerialCommunication::StartCommunicationThread() {
         struct sched_param param;
         param.sched_priority = 99;
         if (pthread_setschedparam(thread.get()->native_handle(), SCHED_RR, &param) != 0)
-            printf("Error Priority set\n");
+            log_output.WarnMessage("pthread_setschedparam: %s", std::strerror(errno));
     }
 }
 
@@ -24,7 +25,7 @@ void SerialCommunication::StopCommunicationThread() {
             thread.get()->join();
         }
     } else {
-        printf("already thread stopped.\n");
+        log_output.WarnMessage("already thread stopped.");
     }
 }
 
@@ -68,13 +69,13 @@ void SerialCommunication::CommunicationProcess() {
                         // Disconnect
                         CloseSerialPort(true);
                     } else {
-                        printf("read() error\n");
+                        log_output.FatalMessage("read: %s", std::strerror(errno));
                         std::quick_exit(EXIT_FAILURE);
                     }
                 }
             } else if (ret < 0) {
                 // Error
-                printf("error\n");
+                log_output.ErrorMessage("SerialCommunication error.");
                 if (errno == EINTR) continue;
                 // Other error
                 std::quick_exit(EXIT_FAILURE);
@@ -86,7 +87,7 @@ void SerialCommunication::CommunicationProcess() {
             }
         } else {
             // Reconnect process
-            printf("reconnect %s...\n", device_name.c_str());
+            log_output.InfoMessage("reconnect %s...", device_name.c_str());
             sleep(reconnect_interval);
             OpenSerialPort(device_name.c_str(), true);
         }
@@ -139,7 +140,7 @@ bool SerialCommunication::OpenSerialPort(const char *device_name, bool reconnect
     transmit_failure_count = 0;
     is_connected = true;
 
-    printf("serial open.\n");
+    log_output.InfoMessage("Serial open.");
 
     if (reconnect) {
         if (on_reconnect != nullptr) on_reconnect();
@@ -161,7 +162,7 @@ void SerialCommunication::CloseSerialPort(bool error = false) {
     fd = -1;
     is_connected = false;
 
-    printf("serial close.\n");
+    log_output.InfoMessage("Serial close.");
 
     if (error) {
         if (on_disconnect != nullptr) on_disconnect();
@@ -252,7 +253,7 @@ void SerialCommunication::Transmit(uint8_t *data, size_t size) {
     if (written < 0) {
         // Failed
         transmit_failure_count++;
-        printf("transmit failure\n");
+        log_output.ErrorMessage("transmit failure.");
     } else {
         if (transmit_failure_count > 0) {
             transmit_failure_count--;

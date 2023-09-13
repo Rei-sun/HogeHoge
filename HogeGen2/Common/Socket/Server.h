@@ -1,9 +1,10 @@
 #pragma once
 
+#include <../MessageOutputter/MessageOutputter.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <string.h>
+#include <cstring>
 #include <unistd.h>
 #include <pthread.h>
 #include <sys/types.h>
@@ -14,9 +15,12 @@
 #include <errno.h>
 #include <vector>
 #include <functional>
+#include <cstring>
 
 /// @brief サーバークラス
 /// @details 参考: http://www.eyes-software.co.jp/news/archives/7
+namespace HogeGen2{
+
 class Server {
     inline static const int SRV_SEND_BUFF = 1024;
     inline static const int SRV_RECV_BUFF = 1024;
@@ -48,11 +52,11 @@ class Server {
     int Transmit(int fd, const char* tx_data, size_t tx_size) {
         int ret;
         if((ret = send(fd, tx_data, tx_size, 0)) < 0) {
-            perror("send");
-            printf("fd = %d\n", fd);
+            log_output.ErrorMessage("send: %s", std::strerror(errno));
+            log_output.InfoMessage("Server transmit fd = %d", fd);
             return -1;
         }else if(ret == 0){
-            printf("[Info]Disconnected.\n");
+            log_output.InfoMessage("Disconnected");
             return 1;
         }
         return 0;
@@ -107,7 +111,7 @@ public:
                     if ((client_fd = accept(server->server_fd, (struct sockaddr *)&from_addr, &len)) < 0 ) {
                         goto end;
                     }
-                    fprintf(stdout, "[Info]socket:%d  connected. \n", client_fd);
+                    log_output.InfoMessage("socket:%d  connected.", client_fd);
                     server->client_fds.push_back(client_fd);
                 }
                 for (int i = 0; i < (int)server->client_fds.size(); i++){
@@ -123,11 +127,11 @@ public:
                             }
                         } else if (cnt == 0) {
                             // 切断された場合、クローズする
-                            fprintf(stdout, "[Info]socket:%d  disconnected. \n", server->client_fds[i]);
+                            log_output.InfoMessage("socket:%d  disconnected.", server->client_fds[i]);
                             close(server->client_fds[i]);
                             server->client_fds.erase(server->client_fds.begin() + i);
                         } else {
-                            perror("read");
+                            log_output.ErrorMessage("read: %s", std::strerror(errno));
                             goto end;
                         }
                     }
@@ -143,7 +147,7 @@ public:
         // 接続要求待ち受け用ソケットクローズ
         close(server->server_fd);
         server->server_fd = -1;
-        printf("[Info]Server close.\n");
+        log_output.InfoMessage("Server close.");
         return nullptr;
     }
     
@@ -163,40 +167,41 @@ public:
     /// @details ソケットを生成する、クライアンを待つスレッドを生成する
     int Init(int port, std::function<void(Server*, char*, int, int)> f) {
         if((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-            perror("socket error");
+            log_output.ErrorMessage("socket: %s", std::strerror(errno));
             return 1;
         }
         this->server_addr.sin_family = AF_INET;
         this->server_addr.sin_port = htons(port);
         this->server_addr.sin_addr.s_addr = INADDR_ANY;
         if(bind(this->server_fd, (struct sockaddr *)&this->server_addr, sizeof(this->server_addr)) < 0) {
-            perror("bind error");
+            log_output.ErrorMessage("bind: %s", std::strerror(errno));
             return 2;
         }
         if(listen(this->server_fd, 1) < 0) {
-            perror("listen error");
+            log_output.ErrorMessage("listen: %s", std::strerror(errno));
             return 3;
         }
-        printf("[Info]Init Server. port = %d\n", port);
+
+        log_output.InfoMessage("Init Server. port = %d", port);
 
         // 受信、acceptのスレッドを作成する
         // pthread_t temp_thread;
         int thread_create = 1;
         if( (thread_create = pthread_create(&temp_thread, nullptr, Server::CommThread, this)) != 0) {
-            perror("pthread_create");
+            log_output.ErrorMessage("pthread_create: %s", std::strerror(errno));
             return 4;
         }else{
             // if (pthread_detach(temp_thread) != 0) {
-            //     perror("pthread_detach");
+            //     log_output.ErrorMessage("pthread_detach: %s", std::strerror(errno));
             //     return 5;
             // }else{
             //     this->receive_proc = f;
             //     continueFlag = true;
-            //     printf("[Info]Server start.\n");
+            //     log_output.InfoMessage("Server start.");
             // }
             this->receive_proc = f;
             continueFlag = true;
-            printf("[Info]Server start.\n");
+            log_output.InfoMessage("Server start.");
         }
         return 0;
     }
@@ -255,3 +260,5 @@ public:
         temp_thread = -1;
     }
 };
+
+}

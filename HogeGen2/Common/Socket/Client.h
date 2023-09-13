@@ -1,9 +1,10 @@
 #pragma once
 
+#include <../MessageOutputter/MessageOutputter.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <string.h>
+#include <cstring>
 #include <unistd.h>
 #include <sys/types.h>
 #include <pthread.h>
@@ -13,6 +14,8 @@
 #include <errno.h>
 #include <vector>
 #include <functional>
+
+namespace HogeGen2 {
 
 /// @brief クライアントクラス
 class Client {
@@ -44,7 +47,7 @@ class Client {
         int ret;
         if(f_init) {
             if((ret = send(this->server_fd, tx_data, tx_size, 0)) <= 0) {
-                perror("send");
+                log_output.ErrorMessage("send: %s", std::strerror(errno));
                 return -1;
             }
             return ret;
@@ -103,7 +106,7 @@ public:
             }
         }
         end:
-        fprintf(stdout, "[Info]socket:%d  disconnected. \n", client->server_fd);
+        log_output.InfoMessage("socket:%d  disconnected.", client->server_fd);
         close(client->server_fd);
         client->server_fd = -1;
         return nullptr;
@@ -122,14 +125,14 @@ public:
     /// @details ソケットを生成する
     int Init(const char* host, int port) {
         if((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-            perror("socket");
+            log_output.ErrorMessage("socket: %s", std::strerror(errno));
             return -1;
         }
         f_init = true;
         this->server_addr.sin_family = AF_INET;
         this->server_addr.sin_port = htons(port);
         this->server_addr.sin_addr.s_addr = inet_addr(host);
-        printf("[Info]Init Client. %s, %d\n", host, port);
+        log_output.InfoMessage("Init Client. %s, %d", host, port);
         return server_fd;
     }
     
@@ -140,26 +143,26 @@ public:
     int Connect(std::function<void(Client*, uint8_t*, int)> f = nullptr) {
         if(f_init) {
             if((connect(this->server_fd, (struct sockaddr *)&this->server_addr, sizeof(struct sockaddr_in))) < 0) {
-                perror("connect");
+                log_output.ErrorMessage("connect: %s", std::strerror(errno));
                 return 1;
             }
-            printf("[Info]Connected.\n");
+            log_output.InfoMessage("Connected.");
             int thread_create = -1;
             if( (thread_create = pthread_create(&temp_thread, nullptr, Client::CommThread, this)) != 0) {
-                perror("pthread_create");
+                log_output.ErrorMessage("pthread_create: %s", std::strerror(errno));
                 return 2;
             }else{
                 if (pthread_detach(temp_thread) != 0) {
-                    perror("pthread_detach");
+                    log_output.ErrorMessage("pthread_detach: %s", std::strerror(errno));
                     return 3;
                 }else{
                     this->receive_proc = f;
                     continueFlag = true;
-                    printf("[Info]Client start.\n");
+                    log_output.InfoMessage("Client start.");
                 }
             }
         }else{
-            printf("[Error]Client has not been Init.\n");
+            log_output.WarnMessage("Client has not been Init.");
             return -1;
         }
         return 0;
@@ -195,3 +198,5 @@ public:
         return continueFlag;
     }
 };
+
+}
