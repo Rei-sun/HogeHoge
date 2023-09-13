@@ -12,6 +12,7 @@ set(APP_DIR ${PROJECT_SOURCE_DIR}/App)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/Lib)
 
 add_compile_definitions(HOGE_ROOT="${PROJECT_SOURCE_DIR}/../")
+add_compile_definitions(HOGE_PATH="${PROJECT_SOURCE_DIR}/")
 
 add_subdirectory(App)
 add_subdirectory(Lib)
