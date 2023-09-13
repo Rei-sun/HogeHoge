@@ -99,7 +99,7 @@ namespace HogeGen2 {
 
             for(auto it = pids.begin(); it != pids.end();){
                 if(pid == (*it).pid){
-                    log_output.InfoMessage("[%s] returns %s", (*it).name, stat);
+                    log_output.InfoMessage("[%s] returns %d", (*it).name.c_str(), stat);
                     pids.erase(it);
                     return;
                 }else{
