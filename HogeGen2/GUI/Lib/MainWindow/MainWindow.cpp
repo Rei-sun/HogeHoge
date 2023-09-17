@@ -297,7 +297,6 @@ void MainWindow::ConnectButton_OnClicked() {
         ip_communication.Stop();
     } else {
         ip_communication.Start("127.0.0.1", port);
-        TimerStart();
     }
     
     // 接続の状態によってラベルとボタンのテキストを変更する
@@ -306,6 +305,7 @@ void MainWindow::ConnectButton_OnClicked() {
         connect_label->setText("Connected");
         connect_button->setText("Disconnect");
         SetupModuleGroupBoxWidget();
+        TimerStart();
     
     } else {
     
