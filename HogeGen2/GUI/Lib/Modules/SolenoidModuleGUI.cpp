@@ -13,11 +13,14 @@ void SolenoidModuleGUI::Deserialize(uint8_t* data, int size) {
     SetArrays(
         std::tuple<void*, void*, int>{state_array, &data[0], sizeof(uint8_t) * 1}
     );
+    WidgetUpdate();
 }
 
 void SolenoidModuleGUI::WidgetUpdate() {
     for (int i = 0; i < (int)line_edits.size(); i++) {
-        line_edits[i]->setText(QString::fromStdString(GetState(i+1) ? "1" : "0"));
+        auto str = std::string("");
+        str = GetState(i+1) == 1 ? "1" : "0";
+        line_edits[i]->setText(QString::fromStdString(str));
     }
 }
 
@@ -59,6 +62,9 @@ QGroupBox *SolenoidModuleGUI::GetGroupBox() {
     });
     layout_hbox->addWidget(control_button);
     
+    // 最後にStretchをいれて余白を詰める。
+    layout_hbox->addStretch();
+
     auto group = new QGroupBox();
     group->setLayout(layout_hbox);
     

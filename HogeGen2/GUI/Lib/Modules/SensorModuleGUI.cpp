@@ -60,6 +60,9 @@ QGroupBox *SensorModuleGUI::GetGroupBox() {
         line_edits.push_back(line_edit);
     }
 
+    // 最後にStretchをいれて余白を詰める。
+    layout_hbox->addStretch();
+
     // レイアウト設定Ex
     auto layout_hbox_ex = new QHBoxLayout;
     layout_hbox_ex->setSpacing(5);
@@ -87,6 +90,9 @@ QGroupBox *SensorModuleGUI::GetGroupBox() {
         layout_hbox_ex->addWidget(line_edit);
         line_edits_ex.push_back(line_edit);
     }
+
+    // 最後にStretchをいれて余白を詰める。
+    layout_hbox_ex->addStretch();
 
     layout_vbox_ex->addLayout(layout_hbox);
     layout_vbox_ex->addLayout(layout_hbox_ex);

@@ -10,8 +10,8 @@ namespace HogeGen2 {
 
 class EncoderModuleGUI : public EncoderModule, public IModuleDeserializer, public IGroupBox {
     static inline std::vector<std::string> category_pose_text = {
-        "Position X",
-        "Position Y",
+        "X",
+        "Y",
         "Roll",
         "Pitch",
         "Yaw" 
@@ -22,6 +22,7 @@ class EncoderModuleGUI : public EncoderModule, public IModuleDeserializer, publi
     };
 
     std::vector<QLineEdit*> line_edits;
+    std::vector<QLineEdit*> pose_line_edits;
 
 public:
     EncoderModuleGUI(uint8_t _module_num, IPCommunicationSub *ip_communication);
