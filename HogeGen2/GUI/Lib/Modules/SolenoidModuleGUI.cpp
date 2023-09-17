@@ -59,6 +59,9 @@ QGroupBox *SolenoidModuleGUI::GetGroupBox() {
     });
     layout_hbox->addWidget(control_button);
     
+    // 最後にStretchをいれて余白を詰める。
+    layout_hbox->addStretch();
+
     auto group = new QGroupBox();
     group->setLayout(layout_hbox);
     
