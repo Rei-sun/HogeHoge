@@ -9,6 +9,9 @@
 #include <string>
 #include <stdarg.h>
 #include <iomanip>
+#include <chrono>
+#include <unistd.h>
+#include <vector>
 
 namespace HogeGen2 {
 
