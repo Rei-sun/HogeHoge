@@ -87,7 +87,13 @@ public:
         
             // Control
             auto dev_id = std::stoi(cmd[3]);
-            auto value = std::stof(cmd[4]);
+
+            // ここでよく例外が発生するので、対処
+            auto value = 0.f;
+            // doubleで変換してからfloatに変換すると安全らしい
+            auto temp = std::stod(cmd[4]);
+            value = temp;
+
             v[num - 1]->Control(dev_id, value);
 
         } else if (cmd[0] == "Bar") {
